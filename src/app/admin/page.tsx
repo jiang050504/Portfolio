@@ -47,15 +47,17 @@ const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
 function Field({
   label,
   hint,
+  color,
   children,
 }: {
   label: string;
   hint?: string;
+  color?: string;
   children: React.ReactNode;
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-medium text-zinc-400">
+      <span className={`mb-1.5 block text-sm font-medium ${color || "text-zinc-400"}`}>
         {label}
         {hint && <span className="ml-1 text-xs text-zinc-600">({hint})</span>}
       </span>
@@ -276,7 +278,7 @@ function ProjectEditor({
           />
         </Field>
       </div>
-      <Field label="演示链接（飞书/网页等）">
+      <Field label="演示链接（飞书/网页等）" color="text-green-400">
         <Input
           value={project.demo}
           onChange={(v) => onChange({ ...project, demo: v })}
@@ -287,7 +289,7 @@ function ProjectEditor({
       <div>
         <div className="mb-2 flex items-center justify-between">
           <span className="text-sm font-medium text-zinc-400">
-            项目截图（{project.images?.length || 0} 张）
+            <span className="text-purple-400">项目截图（{project.images?.length || 0} 张）</span>
           </span>
           <button
             onClick={() => onChange({ ...project, images: [...(project.images || []), ""] })}
@@ -319,7 +321,7 @@ function ProjectEditor({
       <div>
         <div className="mb-2 flex items-center justify-between">
           <span className="text-sm font-medium text-zinc-400">
-            演示视频（{project.videos?.length || 0} 个）
+            <span className="text-purple-400">演示视频（{project.videos?.length || 0} 个）</span>
           </span>
           <button
             onClick={() => onChange({ ...project, videos: [...(project.videos || []), ""] })}
@@ -464,9 +466,10 @@ export default function AdminPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push("/")}
-              className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-2 text-sm text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200"
+              className="flex items-center gap-2 rounded-lg border border-white/[0.08] px-4 py-2.5 text-base text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200"
             >
               <ArrowLeft size={14} />
+              <ArrowLeft size={18} />
               回到网站
             </button>
             <h1 className="text-2xl font-bold text-zinc-100">内容编辑后台</h1>

@@ -41,8 +41,8 @@ export default function ProjectDetailClient({ id }: Props) {
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="mx-auto max-w-4xl px-6">
-        <Link href="/projects" className="mb-8 inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-cyan-400">
-          <ArrowLeft size={14} /> 返回作品列表
+        <Link href="/projects" className="mb-8 inline-flex items-center gap-2 rounded-lg border border-white/[0.08] px-4 py-2.5 text-base text-zinc-400 transition-colors hover:border-cyan-400/30 hover:text-cyan-400">
+          <ArrowLeft size={18} /> 返回作品列表
         </Link>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>

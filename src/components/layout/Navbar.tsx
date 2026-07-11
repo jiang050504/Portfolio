@@ -39,7 +39,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                className={`relative rounded-lg px-5 py-2.5 text-base font-medium transition-colors ${
                   isActive
                     ? "text-cyan-400"
                     : "text-zinc-400 hover:text-zinc-200"
@@ -85,7 +85,7 @@ export default function Navbar() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className={`rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+                    className={`rounded-lg px-5 py-3 text-base font-medium transition-colors ${
                       isActive
                         ? "bg-cyan-400/10 text-cyan-400"
                         : "text-zinc-400 hover:bg-white/[0.03] hover:text-zinc-200"
