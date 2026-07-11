@@ -53,7 +53,7 @@ export default function ProjectCard({
           {showVideo && allVideos.length > 0 ? (
             <video
               src={allVideos[0]}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
               muted
               loop
               playsInline
