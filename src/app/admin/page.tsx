@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { useContent } from "@/context/ContentContext";
 import type { SiteContent, Project, Experience } from "@/data/defaults";
 import { defaultContent } from "@/data/defaults";
@@ -48,16 +47,24 @@ function Field({
   label,
   hint,
   color,
+  value,
   children,
 }: {
   label: string;
   hint?: string;
   color?: string;
+  value?: string | any[];
   children: React.ReactNode;
 }) {
+  const isEmpty = value !== undefined
+    ? (Array.isArray(value) ? value.filter(Boolean).length === 0 : !value)
+    : null;
+  const labelColor = isEmpty === true ? "text-red-400"
+    : isEmpty === false ? "text-green-400"
+    : (color || "text-zinc-400");
   return (
     <label className="block">
-      <span className={`mb-1.5 block text-sm font-medium ${color || "text-zinc-400"}`}>
+      <span className={`mb-1.5 block text-sm font-medium ${labelColor}`}>
         {label}
         {hint && <span className="ml-1 text-xs text-zinc-600">({hint})</span>}
       </span>
@@ -264,13 +271,13 @@ function ProjectEditor({
         <Trash2 size={14} />
       </button>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="项目名称">
+        <Field label="项目名称" value={project.title}>
           <Input
             value={project.title}
             onChange={(v) => onChange({ ...project, title: v })}
           />
         </Field>
-        <Field label="GitHub 链接">
+        <Field label="GitHub 链接" value={project.github}>
           <Input
             value={project.github}
             onChange={(v) => onChange({ ...project, github: v })}
@@ -278,7 +285,7 @@ function ProjectEditor({
           />
         </Field>
       </div>
-      <Field label="演示链接（飞书/网页等）" color="text-green-400">
+      <Field label="演示链接（飞书/网页等）" value={project.demo}>
         <Input
           value={project.demo}
           onChange={(v) => onChange({ ...project, demo: v })}
@@ -289,7 +296,7 @@ function ProjectEditor({
       <div>
         <div className="mb-2 flex items-center justify-between">
           <span className="text-sm font-medium text-zinc-400">
-            <span className="text-purple-400">项目截图（{project.images?.length || 0} 张）</span>
+            <span className={(project.images || []).filter(Boolean).length > 0 ? "text-green-400" : "text-red-400"}>项目截图（{(project.images || []).filter(Boolean).length} 张）</span>
           </span>
           <button
             onClick={() => onChange({ ...project, images: [...(project.images || []), ""] })}
@@ -321,7 +328,7 @@ function ProjectEditor({
       <div>
         <div className="mb-2 flex items-center justify-between">
           <span className="text-sm font-medium text-zinc-400">
-            <span className="text-purple-400">演示视频（{project.videos?.length || 0} 个）</span>
+            <span className={(project.videos || []).filter(Boolean).length > 0 ? "text-green-400" : "text-red-400"}>演示视频（{(project.videos || []).filter(Boolean).length} 个）</span>
           </span>
           <button
             onClick={() => onChange({ ...project, videos: [...(project.videos || []), ""] })}
@@ -348,14 +355,14 @@ function ProjectEditor({
           ))}
         </div>
       </div>
-      <Field label="项目描述（卡片上显示的简短描述）">
+      <Field label="项目描述（卡片上显示的简短描述）" value={project.description}>
         <Textarea
           value={project.description}
           onChange={(v) => onChange({ ...project, description: v })}
           rows={2}
         />
       </Field>
-      <Field label="详细介绍（项目详情页展示的完整内容）">
+      <Field label="详细介绍（项目详情页展示的完整内容）" value={project.detail}>
         <Textarea
           value={project.detail || ""}
           onChange={(v) => onChange({ ...project, detail: v })}
@@ -363,7 +370,7 @@ function ProjectEditor({
           placeholder="在详情页展示的完整项目介绍..."
         />
       </Field>
-      <Field label="技术标签（逗号分隔）">
+      <Field label="技术标签（逗号分隔）" value={project.tags}>
         <Input
           value={project.tags.join(", ")}
           onChange={(v) =>
@@ -399,26 +406,26 @@ function ExperienceEditor({
         <Trash2 size={14} />
       </button>
       <div className="grid gap-3 sm:grid-cols-3">
-        <Field label="时间">
+        <Field label="时间" value={exp.period}>
           <Input
             value={exp.period}
             onChange={(v) => onChange({ ...exp, period: v })}
           />
         </Field>
-        <Field label="职位/学位">
+        <Field label="职位/学位" value={exp.title}>
           <Input
             value={exp.title}
             onChange={(v) => onChange({ ...exp, title: v })}
           />
         </Field>
-        <Field label="公司/学校">
+        <Field label="公司/学校" value={exp.organization}>
           <Input
             value={exp.organization}
             onChange={(v) => onChange({ ...exp, organization: v })}
           />
         </Field>
       </div>
-      <Field label="描述">
+      <Field label="描述" value={exp.description}>
         <Textarea
           value={exp.description}
           onChange={(v) => onChange({ ...exp, description: v })}
@@ -438,7 +445,6 @@ export default function AdminPage() {
   );
   const [saved, setSaved] = useState(false);
   const [newPassword, setNewPassword] = useState("");
-  const router = useRouter();
 
   const handleSave = () => {
     updateContent(draft);
@@ -464,14 +470,6 @@ export default function AdminPage() {
         {/* Header */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push("/")}
-              className="flex items-center gap-2 rounded-lg border border-white/[0.08] px-4 py-2.5 text-base text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200"
-            >
-              <ArrowLeft size={14} />
-              <ArrowLeft size={18} />
-              回到网站
-            </button>
             <h1 className="text-2xl font-bold text-zinc-100">内容编辑后台</h1>
           </div>
           <div className="flex gap-2">
@@ -523,13 +521,13 @@ export default function AdminPage() {
             {/* ---- HERO ---- */}
             {activeTab === "hero" && (
               <>
-                <Field label="问候语（如：你好，我是）">
+                <Field label="问候语（如：你好，我是）" value={draft.heroGreeting}>
                   <Input
                     value={draft.heroGreeting}
                     onChange={(v) => updateDraft({ heroGreeting: v })}
                   />
                 </Field>
-                <Field label="你的姓名">
+                <Field label="你的姓名" value={draft.heroName}>
                   <Input
                     value={draft.heroName}
                     onChange={(v) => updateDraft({ heroName: v })}
@@ -545,7 +543,7 @@ export default function AdminPage() {
                     }
                   />
                 </Field>
-                <Field label="简介描述">
+                <Field label="简介描述" value={draft.heroDescription}>
                   <Textarea
                     value={draft.heroDescription}
                     onChange={(v) => updateDraft({ heroDescription: v })}
