@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--bg-deep);
+  --color-foreground: var(--text-primary);
+  --color-accent: var(--accent-primary);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-card: var(--bg-card);
+  --color-card-border: var(--border-card);
+  --color-muted: var(--text-muted);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --animate-fade-in: fade-in 0.6s ease-out forwards;
+  --animate-slide-up: slide-up 0.6s ease-out forwards;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+  --animate-snowfall: snowfall 12s linear infinite;
+  --animate-mist-drift: mist-drift 20s ease-in-out infinite;
+  --animate-moon-pulse: moon-pulse 8s ease-in-out infinite;
+}
+
+/* ==============================
+   默认主题变量（暗夜科技 Cyber）
+   ============================== */
+:root {
+  --bg-deep: #0a0a0f;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --border-card: rgba(255, 255, 255, 0.06);
+  --text-primary: #e4e4e7;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --accent-primary: #06b6d4;
+  --accent-secondary: #8b5cf6;
+  --accent-glow: rgba(6, 182, 212, 0.15);
+  --accent-glow-strong: rgba(6, 182, 212, 0.3);
+  --gradient-hero: linear-gradient(135deg, #06b6d4, #8b5cf6, #ec4899);
+  --gradient-btn: linear-gradient(135deg, #06b6d4, #8b5cf6);
+  --orb-1: rgba(6, 182, 212, 0.1);
+  --orb-2: rgba(139, 92, 246, 0.1);
+  --particle-color: rgba(6, 182, 212, 0.15);
+  --particle-line: rgba(6, 182, 212, 0.04);
+}
+
+/* ==============================
+   霜月主题 CSS 变量
+   通过 data-theme="frostmoon" 切换
+   ============================== */
+[data-theme="frostmoon"] {
+  --bg-deep: #0b1018;
+  --bg-card: rgba(180, 200, 220, 0.04);
+  --border-card: rgba(180, 200, 220, 0.07);
+  --text-primary: #dce6f0;
+  --text-secondary: #a8bcd4;
+  --text-muted: #6b7d94;
+  --accent-primary: #8ec8d4;
+  --accent-secondary: #7b9ec7;
+  --accent-glow: rgba(140, 200, 212, 0.12);
+  --accent-glow-strong: rgba(140, 200, 212, 0.25);
+  --gradient-hero: linear-gradient(135deg, #c8dff0, #8ec8d4, #9bb4d4);
+  --gradient-btn: linear-gradient(135deg, #8bb8c8, #7b9ec7);
+  --orb-1: rgba(180, 210, 230, 0.06);
+  --orb-2: rgba(200, 220, 240, 0.04);
+  --particle-color: rgba(200, 220, 240, 0.18);
+  --particle-line: rgba(180, 210, 230, 0.03);
+}
+
+/* ==============================
+   全局动画
+   ============================== */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow); }
+  50% { box-shadow: 0 0 30px var(--accent-glow-strong), 0 0 60px var(--accent-glow); }
+}
+
+/* 霜月专用动画 */
+@keyframes snowfall {
+  0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(110vh) translateX(40px) rotate(360deg); opacity: 0; }
+}
+@keyframes mist-drift {
+  0%, 100% { transform: translateX(-5%) scale(1); opacity: 0.3; }
+  50% { transform: translateX(5%) scale(1.05); opacity: 0.5; }
+}
+@keyframes moon-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.08); }
+}
+
+/* ==============================
+   全局基础样式
+   ============================== */
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  transition: background 0.8s ease, color 0.8s ease;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb {
+  background: var(--border-card);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* 选中 */
+::selection { background: var(--accent-glow); color: var(--text-primary); }
+
+/* ==============================
+   霜月主题特有的 UI 增强
+   ============================== */
+
+/* Frost frame — 霜月卡片边框冰霜效果 */
+[data-theme="frostmoon"] .frost-frame {
+  position: relative;
+  overflow: hidden;
+}
+[data-theme="frostmoon"] .frost-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(200, 220, 240, 0.06) 0%,
+    rgba(180, 210, 230, 0.02) 40%,
+    rgba(140, 200, 212, 0.04) 100%
+  );
+  pointer-events: none;
+}
+
+/* 霜月卡片顶部冰线 */
+[data-theme="frostmoon"] .frost-card {
+  border-top: 1px solid rgba(200, 225, 240, 0.08);
+  box-shadow:
+    0 1px 0 rgba(200, 220, 240, 0.03) inset,
+    0 4px 24px rgba(140, 180, 210, 0.04);
+}
