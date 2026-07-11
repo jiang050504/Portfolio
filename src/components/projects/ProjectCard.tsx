@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ExternalLink, Globe, Play, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import GlowCard from "@/components/ui/GlowCard";
+import { asset } from "@/lib/path";
 
 interface ProjectCardProps {
   title: string;
@@ -60,7 +61,7 @@ export default function ProjectCard({
             />
           ) : currentImage ? (
             <img
-              src={currentImage}
+              src={asset(currentImage)}
               alt={title}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />

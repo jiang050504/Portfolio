@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useContent } from "@/context/ContentContext";
 import type { SiteContent, Project, Experience } from "@/data/defaults";
 import { defaultContent } from "@/data/defaults";
+import { asset } from "@/lib/path";
 import AuthGate from "@/components/admin/AuthGate";
 import {
   ArrowLeft,
@@ -565,7 +566,7 @@ export default function AdminPage() {
                     <span className="mb-1.5 block text-sm font-medium text-zinc-400">预览</span>
                     <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-cyan-400/30 bg-gradient-to-br from-cyan-500/20 to-purple-500/20">
                       {draft.avatarPath ? (
-                        <img src={draft.avatarPath} alt="头像预览" className="h-full w-full object-cover cursor-pointer" onClick={() => window.open(draft.avatarPath, "_blank")} title="点击查看大图" />
+                        <img src={asset(draft.avatarPath)} alt="头像预览" className="h-full w-full object-cover cursor-pointer" onClick={() => window.open(asset(draft.avatarPath), "_blank")} title="点击查看大图" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-xl font-bold text-cyan-400">
                           {draft.aboutName.slice(0, 3).toUpperCase()}

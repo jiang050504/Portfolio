@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useContent } from "@/context/ContentContext";
+import { asset } from "@/lib/path";
 
 interface BioCardProps {
   delay?: number;
@@ -26,7 +27,7 @@ export default function BioCard({ delay = 0 }: BioCardProps) {
         <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-cyan-400/30 bg-gradient-to-br from-cyan-500/20 to-purple-500/20">
           {avatarPath ? (
             <img
-              src={avatarPath}
+              src={asset(avatarPath)}
               alt={aboutName}
               className="h-full w-full object-cover"
             />

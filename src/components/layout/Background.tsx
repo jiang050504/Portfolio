@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { useContent } from "@/context/ContentContext";
+import { asset } from "@/lib/path";
 
 /* ================================================================
    Cyber Particles — 网络节点粒子（暗夜科技主题）
@@ -231,7 +232,7 @@ export default function Background() {
       {wallpaperEnabled && wallpaperPath && (
         <div className="absolute inset-0">
           <img
-            src={wallpaperPath}
+            src={asset(wallpaperPath)}
             alt=""
             className="h-full w-full"
             style={{
