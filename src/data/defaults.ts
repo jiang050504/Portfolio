@@ -114,8 +114,8 @@ export const defaultContent: SiteContent = {
       tags: ["AIGC", "Stable Diffusion", "即梦", "概念设计"],
       github: "",
       demo: "https://ecnb5b0oiq06.feishu.cn/wiki/TqIwwhLwKiz40lkUo2ncDfBKnhc",
-      images: [],
-      videos: [],
+      images: ["/projects/微信图片_20260622102034_259_812.jpg"],
+      videos: ["/projects/飞仙.mp4", "/projects/飞仙2.mp4"],
       detail: "在杭州云爻文化科技有限公司任职期间，我作为 AIGC 生成师参与了《被挖灵脉后我飞升上仙》的商业项目。该项目中我主要负责角色概念图、场景氛围图的 AI 辅助生成，使用即梦、Stable Diffusion 等平台，根据编剧的需求快速迭代视觉效果。通过精准的 prompt 工程和后期 Photoshop 精修，产出的人物角色图与场景图获得了制作方的高度认可，项目成功上线。",
     },
     {
@@ -125,7 +125,7 @@ export const defaultContent: SiteContent = {
       github: "",
       demo: "https://ecnb5b0oiq06.feishu.cn/wiki/TqIwwhLwKiz40lkUo2ncDfBKnhc",
       images: [],
-      videos: [],
+      videos: ["/projects/冲喜.mp4", "/projects/冲喜2.mp4"],
       detail: "该项目是一部都市奇幻题材的短剧，我负责剧中 AIGC 视觉内容的整体制作。运用 liblibAI 和可灵等平台进行角色风格化处理与场景生成，结合 Stable Diffusion 进行精细化控制。项目周期内高效完成了多批次画面素材的生产，积累了丰富的 AIGC 视频生成实战经验。",
     },
     {
