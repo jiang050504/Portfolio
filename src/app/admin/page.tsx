@@ -472,22 +472,6 @@ export default function AdminPage() {
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-bold text-zinc-100">内容编辑后台</h1>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={handleReset}
-              className="flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-sm text-red-400 transition-colors hover:bg-red-500/10"
-            >
-              <Undo2 size={14} />
-              恢复默认
-            </button>
-            <button
-              onClick={handleSave}
-              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]"
-            >
-              <Save size={14} />
-              {saved ? "已保存！" : "保存修改"}
-            </button>
-          </div>
         </div>
 
         {/* Tabs */}
