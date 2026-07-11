@@ -932,8 +932,15 @@ export default function AdminPage() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Bottom save button */}
-        <div className="mt-10 flex justify-center">
+        {/* Bottom buttons */}
+        <div className="mt-10 flex justify-center gap-4">
+          <button
+            onClick={handleReset}
+            className="flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/5 px-8 py-3 text-base text-red-400 transition-all hover:bg-red-500/10 hover:scale-105"
+          >
+            <Undo2 size={18} />
+            恢复默认
+          </button>
           <button
             onClick={handleSave}
             className="flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 px-10 py-3 text-base font-medium text-white transition-all hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:scale-105"
