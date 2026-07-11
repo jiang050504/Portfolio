@@ -474,36 +474,10 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-8 flex flex-wrap gap-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                activeTab === tab.key
-                  ? "bg-cyan-400/10 text-cyan-400 shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-300"
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab content */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-            className="space-y-4"
-          >
+        {/* All sections stacked */}
+        <div className="space-y-12">
             {/* ---- HERO ---- */}
-            {activeTab === "hero" && (
+            {true && (
               <>
                 <Field label="问候语（如：你好，我是）" value={draft.heroGreeting}>
                   <Input
@@ -564,7 +538,7 @@ export default function AdminPage() {
             )}
 
             {/* ---- ABOUT ---- */}
-            {activeTab === "about" && (
+            {true && (
               <>
                 <Field label="页面标题">
                   <Input value={draft.aboutTitle} onChange={(v) => updateDraft({ aboutTitle: v })} />
@@ -606,7 +580,7 @@ export default function AdminPage() {
             )}
 
             {/* ---- SKILLS ---- */}
-            {activeTab === "skills" && (
+            {true && (
               <>
                 {draft.skills.map((cat, catIdx) => (
                   <div key={catIdx} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 space-y-3">
@@ -647,7 +621,7 @@ export default function AdminPage() {
             )}
 
             {/* ---- PROJECTS ---- */}
-            {activeTab === "projects" && (
+            {true && (
               <>
                 <Field label="页面标题">
                   <Input value={draft.projectsTitle} onChange={(v) => updateDraft({ projectsTitle: v })} />
@@ -681,7 +655,7 @@ export default function AdminPage() {
             )}
 
             {/* ---- EXPERIENCE ---- */}
-            {activeTab === "experience" && (
+            {true && (
               <>
                 <Field label="页面标题">
                   <Input value={draft.experienceTitle} onChange={(v) => updateDraft({ experienceTitle: v })} />
@@ -715,7 +689,7 @@ export default function AdminPage() {
             )}
 
             {/* ---- CONTACT ---- */}
-            {activeTab === "contact" && (
+            {true && (
               <>
                 <Field label="页面标题">
                   <Input value={draft.contactTitle} onChange={(v) => updateDraft({ contactTitle: v })} />
@@ -771,7 +745,7 @@ export default function AdminPage() {
             )}
 
             {/* ---- WALLPAPER ---- */}
-            {activeTab === "wallpaper" && (
+            {true && (
               <>
                 {/* Theme selector */}
                 <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 space-y-4">
@@ -929,8 +903,7 @@ export default function AdminPage() {
                 </div>
               </>
             )}
-          </motion.div>
-        </AnimatePresence>
+        </div>
 
         {/* Bottom save button */}
         <div className="mt-10 flex justify-center">
