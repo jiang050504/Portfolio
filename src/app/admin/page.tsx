@@ -965,7 +965,8 @@ export default function AdminPage() {
           </button>
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 px-10 py-3 text-base font-medium text-white transition-all hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:scale-105"
+            className="flex items-center gap-2 rounded-full px-10 py-3 text-base font-medium text-white transition-all hover:scale-105"
+            style={{ background: 'var(--gradient-btn)' }}
           >
             <Save size={18} />
             {saved ? "已保存！去网站看看 →" : "保存所有修改"}

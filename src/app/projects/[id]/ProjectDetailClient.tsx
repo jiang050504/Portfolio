@@ -103,7 +103,8 @@ export default function ProjectDetailClient({ id }: Props) {
           <div className="flex flex-wrap gap-4">
             {project.demo && (
               <a href={project.demo} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 px-6 py-3 text-sm font-medium text-white transition-all hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:scale-105">
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-white transition-all hover:scale-105"
+            style={{ background: 'var(--gradient-btn)' }}>
                 <ExternalLink size={16} /> 查看演示
               </a>
             )}

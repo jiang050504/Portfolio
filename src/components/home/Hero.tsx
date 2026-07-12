@@ -99,7 +99,10 @@ export default function Hero() {
         >
           <Link
             href="/projects"
-            className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 px-8 py-3 text-sm font-medium text-white transition-all hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:scale-105"
+            className="group inline-flex items-center gap-2 rounded-full px-8 py-3 text-sm font-medium text-white transition-all hover:scale-105"
+            style={{ background: 'var(--gradient-btn)', boxShadow: '0 0 20px var(--accent-glow)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 0 40px var(--accent-glow-strong)')}
+            onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 0 20px var(--accent-glow)')}
           >
             查看作品
             <ArrowRight
@@ -109,7 +112,10 @@ export default function Hero() {
           </Link>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-8 py-3 text-sm font-medium text-zinc-300 backdrop-blur-sm transition-all hover:border-cyan-500/30 hover:bg-white/[0.06]"
+            className="inline-flex items-center gap-2 rounded-full border px-8 py-3 text-sm font-medium backdrop-blur-sm transition-all"
+            style={{ borderColor: 'var(--border-card)', background: 'var(--bg-card)', color: 'var(--text-secondary)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent-primary)'; e.currentTarget.style.background = 'var(--bg-card)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-card)'; e.currentTarget.style.background = 'var(--bg-card)'; }}
           >
             联系我
           </Link>

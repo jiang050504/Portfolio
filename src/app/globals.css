@@ -79,7 +79,7 @@
   --accent-glow: rgba(180, 80, 240, 0.15);
   --accent-glow-strong: rgba(200, 100, 250, 0.30);
   --gradient-hero: linear-gradient(135deg, #f068c0, #c060f0, #6098f0, #40e8d0);
-  --gradient-btn: linear-gradient(135deg, #c060f0, #f068c0);
+  --gradient-btn: linear-gradient(135deg, #c060f0, #f068c0, #6098f0);
   --orb-1: rgba(200, 100, 240, 0.08);
   --orb-2: rgba(240, 100, 200, 0.06);
   --particle-color: rgba(220, 180, 255, 0.20);

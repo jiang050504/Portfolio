@@ -108,7 +108,8 @@ export default function AuthGate({ children }: AuthGateProps) {
 
               <button
                 type="submit"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 py-3 text-sm font-medium text-white transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] active:scale-[0.98]"
+                className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium text-white transition-all active:scale-[0.98]"
+            style={{ background: 'var(--gradient-btn)', boxShadow: '0 0 20px var(--accent-glow)' }}
               >
                 进入后台 <ArrowRight size={16} />
               </button>
