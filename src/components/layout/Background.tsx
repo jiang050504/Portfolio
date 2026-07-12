@@ -195,12 +195,21 @@ function useSnowflakes(
 
 /* ================================================================
    Stardust — 星尘粒子（虹月主题）
-   特效：七彩星点 + 闪烁 + 极光飘带 + 月辉光晕
+   特效：七彩星点 + 闪烁 + 极光飘带 + 暗红月辉光束 + 暗红拖尾粒子
    ================================================================ */
 interface Star {
   x: number; y: number; r: number;
   twinkleSpeed: number; twinklePhase: number;
   hue: number; baseOpacity: number;
+}
+
+// 暗红斜落粒子（带拖尾）
+interface Ember {
+  x: number; y: number;
+  vy: number; vx: number;
+  r: number; opacity: number;
+  trail: { x: number; y: number; alpha: number }[];
+  life: number; maxLife: number;
 }
 
 function useStardust(
@@ -279,6 +288,70 @@ function useStardust(
       aurora2.addColorStop(1, `hsla(280, 80%, 70%, ${0.025 + 0.015 * Math.sin(t * 0.4)})`);
       ctx.fillStyle = aurora2;
       ctx.fillRect(0, canvas.height * 0.6, canvas.width, canvas.height * 0.15);
+
+      // Dark red ember particles — 暗红粒子从左上斜落，带拖尾
+      starsRef.current.forEach((s, i) => {
+        // Only draw for ember-type stars (every 5th star)
+        if (i % 5 !== 0) return;
+        const emberX = s.x + Math.sin(t * 0.3 + i) * 0.8;
+        const emberY = s.y + t * 0.2;
+        const emberAlpha = s.baseOpacity * 0.6;
+
+        // Trail glow
+        for (let j = 1; j <= 4; j++) {
+          const tx = emberX - j * 2;
+          const ty = emberY - j * 3;
+          const ta = emberAlpha * (1 - j * 0.22);
+          ctx.beginPath();
+          ctx.arc(tx, ty, s.r * (1 - j * 0.15), 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(180,30,40,${ta})`;
+          ctx.fill();
+        }
+        // Ember core
+        ctx.beginPath();
+        ctx.arc(emberX, emberY, s.r * 1.2, 0, Math.PI * 2);
+        const emberGrad = ctx.createRadialGradient(emberX, emberY, 0, emberX, emberY, s.r * 3);
+        emberGrad.addColorStop(0, `rgba(220,50,50,${emberAlpha})`);
+        emberGrad.addColorStop(0.5, `rgba(160,20,30,${emberAlpha * 0.6})`);
+        emberGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = emberGrad;
+        ctx.fill();
+      });
+
+      // Moonbeams — 暗红月光束间歇洒下
+      const beamPhase = (Math.sin(t * 0.15) + 1) / 2; // 0~1 slow cycle
+      if (beamPhase > 0.7) {
+        const beamAlpha = (beamPhase - 0.7) / 0.3 * 0.06;
+        // Beam 1 — from top-left
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(canvas.width * 0.15, -10);
+        ctx.lineTo(canvas.width * 0.5, canvas.height * 0.7);
+        ctx.lineTo(canvas.width * 0.55, canvas.height * 0.7);
+        ctx.lineTo(canvas.width * 0.2, -10);
+        ctx.closePath();
+        const beamGrad1 = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.7);
+        beamGrad1.addColorStop(0, `rgba(180,60,70,${beamAlpha})`);
+        beamGrad1.addColorStop(1, "rgba(120,20,30,0)");
+        ctx.fillStyle = beamGrad1;
+        ctx.fill();
+        ctx.restore();
+
+        // Beam 2 — from top-center-right
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(canvas.width * 0.6, -10);
+        ctx.lineTo(canvas.width * 0.85, canvas.height * 0.6);
+        ctx.lineTo(canvas.width * 0.9, canvas.height * 0.6);
+        ctx.lineTo(canvas.width * 0.65, -10);
+        ctx.closePath();
+        const beamGrad2 = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.6);
+        beamGrad2.addColorStop(0, `rgba(160,40,50,${beamAlpha * 0.7})`);
+        beamGrad2.addColorStop(1, "rgba(100,15,20,0)");
+        ctx.fillStyle = beamGrad2;
+        ctx.fill();
+        ctx.restore();
+      }
 
       animRef.current = requestAnimationFrame(draw);
     };
