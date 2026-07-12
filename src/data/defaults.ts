@@ -47,7 +47,7 @@ export interface SiteContent {
   contacts: Contact[];
   contactStatusTitle: string;
   contactStatusText: string;
-  theme: 'cyber' | 'frostmoon';
+  theme: 'cyber' | 'frostmoon' | 'hongyue';
   adminPassword: string;
   wallpaperEnabled: boolean;
   wallpaperPath: string;

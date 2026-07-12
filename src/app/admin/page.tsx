@@ -779,7 +779,7 @@ export default function AdminPage() {
                     <Layers size={16} className="text-purple-400" />
                     主题选择
                   </h3>
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-3 sm:grid-cols-3">
                     {/* Cyber theme */}
                     <button
                       onClick={() => updateDraft({ theme: "cyber" })}
@@ -807,6 +807,20 @@ export default function AdminPage() {
                       <p className="text-sm font-medium text-zinc-200">霜月</p>
                       <p className="text-xs text-zinc-500 mt-1">清冷月光 · 霜雪粒子 · 东方美学</p>
                     </button>
+
+                    {/* Hongyue theme */}
+                    <button
+                      onClick={() => updateDraft({ theme: "hongyue" })}
+                      className={`rounded-xl border p-4 text-left transition-all ${
+                        draft.theme === "hongyue"
+                          ? "border-purple-400/40 bg-purple-400/10 shadow-[0_0_20px_rgba(200,100,240,0.15)]"
+                          : "border-white/[0.06] bg-white/[0.02] hover:border-purple-400/20"
+                      }`}
+                    >
+                      <div className="mb-2 h-2 w-full rounded-full bg-gradient-to-r from-[#f068c0] via-[#c060f0] to-[#6098f0]" />
+                      <p className="text-sm font-medium text-zinc-200">虹月</p>
+                      <p className="text-xs text-zinc-500 mt-1">霓虹星海 · 月辉流转 · 虹彩极光</p>
+                    </button>
                   </div>
                   {draft.theme === "frostmoon" && (
                     <div className="flex flex-wrap gap-2 text-xs text-zinc-500">
@@ -814,6 +828,14 @@ export default function AdminPage() {
                       <span className="rounded-full bg-[#8ec8d4]/10 px-2 py-0.5">#8ec8d4 霜青</span>
                       <span className="rounded-full bg-[#7b9ec7]/10 px-2 py-0.5">#7b9ec7 月蓝</span>
                       <span className="rounded-full bg-[#a8bcd4]/10 px-2 py-0.5">#a8bcd4 银蓝</span>
+                    </div>
+                  )}
+                  {draft.theme === "hongyue" && (
+                    <div className="flex flex-wrap gap-2 text-xs text-zinc-500">
+                      <span className="rounded-full bg-[#c060f0]/10 px-2 py-0.5">#c060f0 霓紫</span>
+                      <span className="rounded-full bg-[#f068c0]/10 px-2 py-0.5">#f068c0 虹粉</span>
+                      <span className="rounded-full bg-[#6098f0]/10 px-2 py-0.5">#6098f0 星蓝</span>
+                      <span className="rounded-full bg-[#40e8d0]/10 px-2 py-0.5">#40e8d0 极青</span>
                     </div>
                   )}
                 </div>

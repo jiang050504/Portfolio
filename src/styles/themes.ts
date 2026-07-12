@@ -3,7 +3,7 @@
  * 霜月 Frost Moon — 清冷 / 月光感 / 初冬 / 雾霜 / 低饱和 / 东方美学
  */
 
-export type ThemeId = "cyber" | "frostmoon";
+export type ThemeId = "cyber" | "frostmoon" | "hongyue";
 
 export interface ThemeDef {
   id: ThemeId;
@@ -12,7 +12,7 @@ export interface ThemeDef {
   // CSS 自定义属性键值
   cssVars: Record<string, string>;
   // 背景特效类型
-  bgEffect: "particles-cyber" | "snowflakes" | "none";
+  bgEffect: "particles-cyber" | "snowflakes" | "stardust" | "none";
 }
 
 export const themes: Record<ThemeId, ThemeDef> = {
@@ -75,6 +75,42 @@ export const themes: Record<ThemeId, ThemeDef> = {
       "--particle-line": "rgba(180, 210, 230, {opacity})",
     },
     bgEffect: "snowflakes",
+  },
+
+  hongyue: {
+    id: "hongyue",
+    name: "虹月",
+    description: "霓虹星海，月辉流转，极光虹彩",
+    cssVars: {
+      // 基础 — 深空宇宙
+      "--bg-deep": "#0b0b1e",
+      "--bg-card": "rgba(120,80,200,0.04)",
+      "--border-card": "rgba(200,140,240,0.08)",
+
+      // 文字 — 月辉白
+      "--text-primary": "#e8e0f0",
+      "--text-secondary": "#c0b0d8",
+      "--text-muted": "#8078b0",
+
+      // 强调色 — 虹彩
+      "--accent-primary": "#c060f0",     // 霓紫
+      "--accent-secondary": "#f068c0",   // 虹粉
+      "--accent-glow": "rgba(180,80,240,0.15)",
+      "--accent-glow-strong": "rgba(200,100,250,0.30)",
+
+      // 渐变
+      "--gradient-hero": "linear-gradient(135deg, #f068c0, #c060f0, #6098f0, #40e8d0)",
+      "--gradient-btn": "linear-gradient(135deg, #c060f0, #f068c0)",
+
+      // 光晕 — 月辉虹雾
+      "--orb-1": "rgba(200,100,240,0.08)",
+      "--orb-2": "rgba(240,100,200,0.06)",
+
+      // 粒子
+      "--particle-color": "rgba(220,180,255,0.20)",
+      "--particle-line": "rgba(200,160,240,{opacity})",
+    },
+    bgEffect: "stardust",
   },
 };
 
