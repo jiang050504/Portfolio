@@ -6,7 +6,6 @@ import Footer from "@/components/layout/Footer";
 import Background from "@/components/layout/Background";
 import WallpaperToggle from "@/components/layout/WallpaperToggle";
 import ThemeInjector from "@/components/layout/ThemeInjector";
-import MouseGlow from "@/components/layout/MouseGlow";
 import { ContentProvider } from "@/context/ContentContext";
 
 const geistSans = Geist({
@@ -37,7 +36,6 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[var(--bg-deep)] text-[var(--text-primary)] transition-colors duration-700">
         <ContentProvider>
           <ThemeInjector />
-          <MouseGlow />
           <Background />
           <Navbar />
           <main className="relative z-10 flex-1">{children}</main>

@@ -194,178 +194,6 @@ function useSnowflakes(
 }
 
 /* ================================================================
-   Stardust — 星尘粒子（虹月主题）
-   特效：七彩星点 + 闪烁 + 极光飘带 + 暗红月辉光束 + 暗红拖尾粒子
-   ================================================================ */
-interface Star {
-  x: number; y: number; r: number;
-  twinkleSpeed: number; twinklePhase: number;
-  hue: number; baseOpacity: number;
-}
-
-// 暗红斜落粒子（带拖尾）
-interface Ember {
-  x: number; y: number;
-  vy: number; vx: number;
-  r: number; opacity: number;
-  trail: { x: number; y: number; alpha: number }[];
-  life: number; maxLife: number;
-}
-
-function useStardust(
-  canvasRef: React.RefObject<HTMLCanvasElement | null>,
-  active: boolean
-) {
-  const starsRef = useRef<Star[]>([]);
-  const animRef = useRef<number>(0);
-  const timeRef = useRef(0);
-
-  const init = useCallback(() => {
-    if (!active) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const count = Math.min(150, Math.floor(window.innerWidth / 8));
-    starsRef.current = Array.from({ length: count }, () => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      r: Math.random() * 2.5 + 0.3,
-      twinkleSpeed: Math.random() * 2 + 0.5,
-      twinklePhase: Math.random() * Math.PI * 2,
-      hue: [280, 310, 330, 200, 180, 340, 260][Math.floor(Math.random() * 7)],
-      baseOpacity: Math.random() * 0.5 + 0.3,
-    }));
-
-    const draw = () => {
-      if (!ctx || !canvas) return;
-      timeRef.current += 0.016;
-      const t = timeRef.current;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw stars
-      starsRef.current.forEach((s) => {
-        const alpha = s.baseOpacity * (0.5 + 0.5 * Math.sin(t * s.twinkleSpeed + s.twinklePhase));
-        ctx.save();
-        ctx.translate(s.x, s.y);
-
-        // Star core
-        ctx.beginPath();
-        ctx.arc(0, 0, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${s.hue}, 80%, 75%, ${alpha})`;
-        ctx.fill();
-
-        // Star glow
-        const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, s.r * 4);
-        glow.addColorStop(0, `hsla(${s.hue}, 80%, 75%, ${alpha * 0.6})`);
-        glow.addColorStop(1, "transparent");
-        ctx.beginPath();
-        ctx.arc(0, 0, s.r * 4, 0, Math.PI * 2);
-        ctx.fillStyle = glow;
-        ctx.fill();
-
-        ctx.restore();
-      });
-
-      // Aurora ribbons — slow flowing light bands
-      const aurora1 = ctx.createLinearGradient(0, canvas.height * 0.3, canvas.width, canvas.height * 0.45);
-      aurora1.addColorStop(0, `hsla(280, 80%, 70%, ${0.03 + 0.02 * Math.sin(t * 0.4)})`);
-      aurora1.addColorStop(0.5, `hsla(320, 80%, 70%, ${0.03 + 0.02 * Math.cos(t * 0.35)})`);
-      aurora1.addColorStop(1, `hsla(200, 80%, 70%, ${0.02 + 0.02 * Math.sin(t * 0.45)})`);
-      ctx.fillStyle = aurora1;
-      ctx.fillRect(0, canvas.height * 0.3, canvas.width, canvas.height * 0.15);
-
-      const aurora2 = ctx.createLinearGradient(0, canvas.height * 0.6, canvas.width, canvas.height * 0.75);
-      aurora2.addColorStop(0, `hsla(320, 80%, 70%, ${0.02 + 0.015 * Math.cos(t * 0.5)})`);
-      aurora2.addColorStop(1, `hsla(280, 80%, 70%, ${0.025 + 0.015 * Math.sin(t * 0.4)})`);
-      ctx.fillStyle = aurora2;
-      ctx.fillRect(0, canvas.height * 0.6, canvas.width, canvas.height * 0.15);
-
-      // Dark red ember particles — 暗红粒子从左上斜落，带拖尾
-      starsRef.current.forEach((s, i) => {
-        // Only draw for ember-type stars (every 5th star)
-        if (i % 5 !== 0) return;
-        const emberX = s.x + Math.sin(t * 0.3 + i) * 0.8;
-        const emberY = s.y + t * 0.2;
-        const emberAlpha = s.baseOpacity * 0.6;
-
-        // Trail glow
-        for (let j = 1; j <= 4; j++) {
-          const tx = emberX - j * 2;
-          const ty = emberY - j * 3;
-          const ta = emberAlpha * (1 - j * 0.22);
-          ctx.beginPath();
-          ctx.arc(tx, ty, s.r * (1 - j * 0.15), 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(180,30,40,${ta})`;
-          ctx.fill();
-        }
-        // Ember core
-        ctx.beginPath();
-        ctx.arc(emberX, emberY, s.r * 1.2, 0, Math.PI * 2);
-        const emberGrad = ctx.createRadialGradient(emberX, emberY, 0, emberX, emberY, s.r * 3);
-        emberGrad.addColorStop(0, `rgba(220,50,50,${emberAlpha})`);
-        emberGrad.addColorStop(0.5, `rgba(160,20,30,${emberAlpha * 0.6})`);
-        emberGrad.addColorStop(1, "transparent");
-        ctx.fillStyle = emberGrad;
-        ctx.fill();
-      });
-
-      // Moonbeams — 暗红月光束间歇洒下
-      const beamPhase = (Math.sin(t * 0.15) + 1) / 2; // 0~1 slow cycle
-      if (beamPhase > 0.7) {
-        const beamAlpha = (beamPhase - 0.7) / 0.3 * 0.06;
-        // Beam 1 — from top-left
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(canvas.width * 0.15, -10);
-        ctx.lineTo(canvas.width * 0.5, canvas.height * 0.7);
-        ctx.lineTo(canvas.width * 0.55, canvas.height * 0.7);
-        ctx.lineTo(canvas.width * 0.2, -10);
-        ctx.closePath();
-        const beamGrad1 = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.7);
-        beamGrad1.addColorStop(0, `rgba(180,60,70,${beamAlpha})`);
-        beamGrad1.addColorStop(1, "rgba(120,20,30,0)");
-        ctx.fillStyle = beamGrad1;
-        ctx.fill();
-        ctx.restore();
-
-        // Beam 2 — from top-center-right
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(canvas.width * 0.6, -10);
-        ctx.lineTo(canvas.width * 0.85, canvas.height * 0.6);
-        ctx.lineTo(canvas.width * 0.9, canvas.height * 0.6);
-        ctx.lineTo(canvas.width * 0.65, -10);
-        ctx.closePath();
-        const beamGrad2 = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.6);
-        beamGrad2.addColorStop(0, `rgba(160,40,50,${beamAlpha * 0.7})`);
-        beamGrad2.addColorStop(1, "rgba(100,15,20,0)");
-        ctx.fillStyle = beamGrad2;
-        ctx.fill();
-        ctx.restore();
-      }
-
-      animRef.current = requestAnimationFrame(draw);
-    };
-    draw();
-    return () => {
-      window.removeEventListener("resize", resize);
-      cancelAnimationFrame(animRef.current);
-    };
-  }, [active, canvasRef]);
-
-  useEffect(() => { const c = init(); return () => c?.(); }, [init]);
-}
-
-/* ================================================================
    Background — 全局背景容器
    ================================================================ */
 export default function Background() {
@@ -381,14 +209,11 @@ export default function Background() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isFrostmoon = theme === "frostmoon";
-  const isHongyue = theme === "hongyue";
   const showParticles = !wallpaperEnabled || particlesOnWallpaper;
-  const isCyber = !isFrostmoon && !isHongyue;
 
-  // Always call all three hooks — they no-op when active=false
-  useCyberParticles(canvasRef, isCyber && showParticles);
+  // Always call both hooks — they no-op when active=false
+  useCyberParticles(canvasRef, !isFrostmoon && showParticles);
   useSnowflakes(canvasRef, isFrostmoon && showParticles);
-  useStardust(canvasRef, isHongyue && showParticles);
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
@@ -396,10 +221,10 @@ export default function Background() {
       <div
         className="absolute inset-0"
         style={{
-          opacity: isFrostmoon ? 0.02 : isHongyue ? 0.015 : 0.03,
+          opacity: isFrostmoon ? 0.02 : 0.03,
           backgroundImage:
             "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-          backgroundSize: isFrostmoon ? "80px 80px" : isHongyue ? "100px 100px" : "60px 60px",
+          backgroundSize: isFrostmoon ? "80px 80px" : "60px 60px",
         }}
       />
 
@@ -416,7 +241,7 @@ export default function Background() {
               filter: wallpaperBlur > 0 ? `blur(${wallpaperBlur}px)` : undefined,
             }}
           />
-          {(isFrostmoon || isHongyue) && (
+          {isFrostmoon && (
             <div
               className="absolute inset-0"
               style={{
@@ -481,42 +306,6 @@ export default function Background() {
             style={{
               background: "radial-gradient(circle, rgba(180,210,230,0.05) 0%, transparent 70%)",
               filter: "blur(60px)",
-            }}
-          />
-        </>
-      )}
-
-      {/* Hongyue orbs — 虹月：圆月光晕 + 虹彩光斑 + 极光飘带 */}
-      {isHongyue && (
-        <>
-          {/* Moon halo — 主月光辉 */}
-          <div
-            className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-[40vh] w-[60vw]"
-            style={{
-              background: "radial-gradient(ellipse at 50% 0%, rgba(220,180,250,0.18) 0%, rgba(200,120,240,0.08) 30%, rgba(240,100,200,0.04) 50%, transparent 70%)",
-              filter: "blur(60px)",
-              animation: "moon-halo-pulse 6s ease-in-out infinite",
-            }}
-          />
-          {/* Rainbow glow orbs */}
-          <div className="pointer-events-none absolute top-[15%] left-[10%] h-[300px] w-[300px]"
-            style={{
-              background: "radial-gradient(circle, rgba(240,100,200,0.08) 0%, rgba(200,60,240,0.04) 40%, transparent 70%)",
-              filter: "blur(80px)",
-            }}
-          />
-          <div className="pointer-events-none absolute top-[30%] right-[5%] h-[250px] w-[250px]"
-            style={{
-              background: "radial-gradient(circle, rgba(60,150,240,0.07) 0%, rgba(60,230,210,0.04) 40%, transparent 70%)",
-              filter: "blur(70px)",
-            }}
-          />
-          {/* Bottom rainbow mist */}
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[25vh]"
-            style={{
-              background: "linear-gradient(0deg, rgba(200,60,240,0.05) 0%, rgba(240,100,200,0.03) 30%, rgba(60,150,240,0.02) 60%, transparent 100%)",
-              animation: "aurora-flow 12s ease-in-out infinite",
-              filter: "blur(40px)",
             }}
           />
         </>

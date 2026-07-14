@@ -41,87 +41,71 @@
   --particle-line: rgba(6, 182, 212, 0.04);
 }
 
+
 /* ==============================
-   霜月主题 CSS 变量
-   通过 data-theme="frostmoon" 切换
+   霜月主题（深寒夜 · 冰月辉光 · 霜白粒子）
    ============================== */
 [data-theme="frostmoon"] {
-  --bg-deep: #0b1018;
-  --bg-card: rgba(180, 200, 220, 0.04);
-  --border-card: rgba(180, 200, 220, 0.07);
-  --text-primary: #dce6f0;
-  --text-secondary: #a8bcd4;
-  --text-muted: #6b7d94;
-  --accent-primary: #8ec8d4;
-  --accent-secondary: #7b9ec7;
-  --accent-glow: rgba(140, 200, 212, 0.12);
-  --accent-glow-strong: rgba(140, 200, 212, 0.25);
-  --gradient-hero: linear-gradient(135deg, #c8dff0, #8ec8d4, #9bb4d4);
-  --gradient-btn: linear-gradient(135deg, #8bb8c8, #7b9ec7);
-  --orb-1: rgba(180, 210, 230, 0.06);
-  --orb-2: rgba(200, 220, 240, 0.04);
-  --particle-color: rgba(200, 220, 240, 0.18);
-  --particle-line: rgba(180, 210, 230, 0.03);
+  --bg-deep: #07121d;
+  --bg-card: rgba(8,22,34,0.66);
+  --border-card: rgba(216,241,255,0.28);
+  --text-primary: #f7fbff;
+  --text-secondary: #a9c0d4;
+  --text-muted: #6f879c;
+  --accent-primary: #5fa8d6;
+  --accent-secondary: #a9ddff;
+  --accent-glow: rgba(95,168,214,0.15);
+  --accent-glow-strong: rgba(95,168,214,0.28);
+  --gradient-hero: linear-gradient(135deg, #f7fbff, #a9ddff, #5fa8d6);
+  --gradient-btn: linear-gradient(135deg, #5fa8d6, #a9ddff);
+  --orb-1: rgba(216,241,255,0.14);
+  --orb-2: rgba(95,168,214,0.10);
+  --particle-color: rgba(217,232,246,0.22);
+  --particle-line: rgba(216,241,255,0.04);
 }
 
 /* ==============================
-   虹月主题 — 霓虹星海 / 月辉流转
+   恒月主题（金月光辉 · 紫雾星野 · 鎏金粒子）
+   ============================== */
+[data-theme="hengyue"] {
+  --bg-deep: #080712;
+  --bg-card: rgba(17,12,26,0.72);
+  --border-card: rgba(255,213,111,0.28);
+  --text-primary: #fff9ec;
+  --text-secondary: #c2b2c9;
+  --text-muted: #8e7f9b;
+  --accent-primary: #ffd56f;
+  --accent-secondary: #b69ce8;
+  --accent-glow: rgba(255,213,111,0.16);
+  --accent-glow-strong: rgba(255,213,111,0.30);
+  --gradient-hero: linear-gradient(135deg, #fff9ec, #ffd56f, #b69ce8);
+  --gradient-btn: linear-gradient(135deg, #ffb84d, #ffd56f);
+  --orb-1: rgba(255,213,111,0.10);
+  --orb-2: rgba(182,156,232,0.08);
+  --particle-color: rgba(255,224,139,0.24);
+  --particle-line: rgba(255,213,111,0.04);
+}
+
+/* ==============================
+   虹月主题（赤月光辉 · 玫红暗涌 · 红痕粒子）
    ============================== */
 [data-theme="hongyue"] {
-  --bg-deep: #0b0b1e;
-  --bg-card: rgba(120, 80, 200, 0.04);
-  --border-card: rgba(200, 140, 240, 0.08);
-  --text-primary: #e8e0f0;
-  --text-secondary: #c0b0d8;
-  --text-muted: #8078b0;
-  --accent-primary: #c060f0;
-  --accent-secondary: #f068c0;
-  --accent-glow: rgba(180, 80, 240, 0.15);
-  --accent-glow-strong: rgba(200, 100, 250, 0.30);
-  --gradient-hero: linear-gradient(135deg, #f068c0, #c060f0, #6098f0, #40e8d0);
-  --gradient-btn: linear-gradient(135deg, #c060f0, #f068c0, #6098f0);
-  --orb-1: rgba(200, 100, 240, 0.08);
-  --orb-2: rgba(240, 100, 200, 0.06);
-  --particle-color: rgba(220, 180, 255, 0.20);
-  --particle-line: rgba(200, 160, 240, 0.03);
-}
-
-/* ==============================
-   虹月专用动画
-   ============================== */
-@keyframes stardust-twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.5); }
-}
-@keyframes rainbow-drift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-@keyframes aurora-flow {
-  0% { transform: translateX(-10%) rotate(-2deg); opacity: 0.4; }
-  50% { transform: translateX(10%) rotate(2deg); opacity: 0.7; }
-  100% { transform: translateX(-10%) rotate(-2deg); opacity: 0.4; }
-}
-@keyframes moon-halo-pulse {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.12); }
-}
-
-/* 虹月卡片霓虹边框效果 */
-[data-theme="hongyue"] .hongyue-card {
-  border: 1px solid rgba(200, 140, 240, 0.08);
-  box-shadow:
-    0 0 1px rgba(200, 100, 240, 0.05) inset,
-    0 4px 30px rgba(160, 60, 220, 0.06);
-  transition: box-shadow 0.4s ease, border-color 0.4s ease;
-}
-[data-theme="hongyue"] .hongyue-card:hover {
-  border-color: rgba(200, 140, 240, 0.2);
-  box-shadow:
-    0 0 2px rgba(200, 100, 240, 0.1) inset,
-    0 8px 40px rgba(180, 80, 240, 0.12),
-    0 0 60px rgba(100, 160, 240, 0.06);
+  --bg-deep: #050308;
+  --bg-card: rgba(19,8,17,0.74);
+  --border-card: rgba(255,122,104,0.24);
+  --text-primary: #fff7f8;
+  --text-secondary: #c6a4b7;
+  --text-muted: #937487;
+  --accent-primary: #ff424f;
+  --accent-secondary: #ff9b7b;
+  --accent-glow: rgba(255,66,79,0.18);
+  --accent-glow-strong: rgba(255,66,79,0.32);
+  --gradient-hero: linear-gradient(135deg, #ff7869, #ff424f, #d790aa);
+  --gradient-btn: linear-gradient(135deg, #ff424f, #ff9b7b);
+  --orb-1: rgba(255,66,79,0.10);
+  --orb-2: rgba(215,144,170,0.08);
+  --particle-color: rgba(255,155,123,0.22);
+  --particle-line: rgba(255,122,104,0.04);
 }
 
 /* ==============================
@@ -144,20 +128,34 @@
   50% { box-shadow: 0 0 30px var(--accent-glow-strong), 0 0 60px var(--accent-glow); }
 }
 
-/* 霜月专用动画 */
-@keyframes snowfall {
+/* 霜月：雪花飘落 */
+@keyframes snowfall-drift {
   0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
   10% { opacity: 1; }
   90% { opacity: 1; }
-  100% { transform: translateY(110vh) translateX(40px) rotate(360deg); opacity: 0; }
+  100% { transform: translateY(110vh) translateX(30px) rotate(360deg); opacity: 0; }
 }
-@keyframes mist-drift {
-  0%, 100% { transform: translateX(-5%) scale(1); opacity: 0.3; }
-  50% { transform: translateX(5%) scale(1.05); opacity: 0.5; }
+
+/* 恒月：鎏金粒子漂移 */
+@keyframes gold-drift {
+  0% { transform: translate3d(0, -8vh, 0); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate3d(var(--gx, 10px), 46vh, 0); opacity: 0.8; }
+  100% { transform: translate3d(calc(var(--gx, 10px) * -1), 110vh, 0); opacity: 0; }
 }
-@keyframes moon-pulse {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.08); }
+
+/* 虹月：暗红月相脉冲 */
+@keyframes sigil-pulse {
+  0% { opacity: 0.3; transform: scale(0.8); box-shadow: 0 0 8px rgba(255,66,79,0.4); }
+  100% { opacity: 0.7; transform: scale(1.05); box-shadow: 0 0 24px rgba(255,66,79,0.7); }
+}
+
+/* 虹月：红痕拖尾 */
+@keyframes ember-fall {
+  0% { transform: translate3d(0, -5vh, 0); opacity: 0; }
+  15% { opacity: 0.9; }
+  85% { opacity: 0.5; }
+  100% { transform: translate3d(80px, 110vh, 0); opacity: 0; }
 }
 
 /* ==============================
@@ -171,7 +169,6 @@ body {
   transition: background 0.8s ease, color 0.8s ease;
 }
 
-/* 滚动条 */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-deep); }
 ::-webkit-scrollbar-thumb {
@@ -180,36 +177,4 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-/* 选中 */
 ::selection { background: var(--accent-glow); color: var(--text-primary); }
-
-/* ==============================
-   霜月主题特有的 UI 增强
-   ============================== */
-
-/* Frost frame — 霜月卡片边框冰霜效果 */
-[data-theme="frostmoon"] .frost-frame {
-  position: relative;
-  overflow: hidden;
-}
-[data-theme="frostmoon"] .frost-frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(
-    135deg,
-    rgba(200, 220, 240, 0.06) 0%,
-    rgba(180, 210, 230, 0.02) 40%,
-    rgba(140, 200, 212, 0.04) 100%
-  );
-  pointer-events: none;
-}
-
-/* 霜月卡片顶部冰线 */
-[data-theme="frostmoon"] .frost-card {
-  border-top: 1px solid rgba(200, 225, 240, 0.08);
-  box-shadow:
-    0 1px 0 rgba(200, 220, 240, 0.03) inset,
-    0 4px 24px rgba(140, 180, 210, 0.04);
-}
