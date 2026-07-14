@@ -23,12 +23,12 @@ export default function WallpaperToggle() {
     >
       {wallpaperEnabled ? (
         <>
-          <Sparkles size={14} className="text-cyan-400" />
+          <Sparkles size={14} className="text-[var(--accent-primary)]" />
           <span>粒子背景</span>
         </>
       ) : (
         <>
-          <ImageIcon size={14} className="text-purple-400" />
+          <ImageIcon size={14} className="text-[var(--accent-secondary)]" />
           <span>壁纸模式</span>
         </>
       )}

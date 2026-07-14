@@ -27,7 +27,7 @@ export default function ProjectDetailClient({ id }: Props) {
         <div className="text-center">
           <h1 className="text-4xl font-bold text-[var(--text-secondary)]">项目未找到</h1>
           <p className="mt-4 text-[var(--text-muted)]">该项目不存在或已被删除</p>
-          <Link href="/projects" className="mt-6 inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300">
+          <Link href="/projects" className="mt-6 inline-flex items-center gap-2 text-[var(--accent-primary)] hover:text-[var(--accent-primary)]">
             <ArrowLeft size={16} /> 返回作品列表
           </Link>
         </div>
@@ -41,7 +41,7 @@ export default function ProjectDetailClient({ id }: Props) {
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="mx-auto max-w-4xl px-6">
-        <Link href="/projects" className="mb-8 inline-flex items-center gap-2 rounded-lg border border-white/[0.08] px-4 py-2.5 text-base text-[var(--text-secondary)] transition-colors hover:border-cyan-400/30 hover:text-cyan-400">
+        <Link href="/projects" className="mb-8 inline-flex items-center gap-2 rounded-lg border border-white/[0.08] px-4 py-2.5 text-base text-[var(--text-secondary)] transition-colors hover:border-[var(--accent-primary)]/30 hover:text-[var(--accent-primary)]">
           <ArrowLeft size={18} /> 返回作品列表
         </Link>
 
@@ -49,7 +49,7 @@ export default function ProjectDetailClient({ id }: Props) {
           <h1 className="mb-4 text-3xl font-bold text-[var(--text-primary)] sm:text-4xl">{project.title}</h1>
           <div className="mb-8 flex flex-wrap gap-2">
             {project.tags.map((tag) => (
-              <span key={tag} className="inline-flex items-center gap-1 rounded-full border border-cyan-400/20 bg-cyan-400/5 px-3 py-1.5 text-sm text-cyan-300">
+              <span key={tag} className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-primary)]/20 bg-[var(--accent-primary)]/5 px-3 py-1.5 text-sm text-[var(--accent-primary)]">
                 <Tag size={12} /> {tag}
               </span>
             ))}

@@ -17,14 +17,14 @@ export default function SectionTitle({ title, subtitle }: SectionTitleProps) {
       className="mb-12 text-center"
     >
       <h2 className="text-3xl font-bold sm:text-4xl">
-        <span className="bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+        <span className="bg-clip-text text-transparent" style={{backgroundImage:"var(--gradient-hero)"}}>
           {title}
         </span>
       </h2>
       {subtitle && (
         <p className="mt-3 text-[var(--text-secondary)] text-lg">{subtitle}</p>
       )}
-      <div className="mx-auto mt-4 h-px w-20 bg-gradient-to-r from-cyan-400 to-purple-500" />
+      <div className="mx-auto mt-4 h-px w-20" style={{backgroundImage:"var(--gradient-btn)"}} />
     </motion.div>
   );
 }

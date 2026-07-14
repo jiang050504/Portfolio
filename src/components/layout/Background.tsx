@@ -97,7 +97,7 @@ export default function Background() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
-      <div className="absolute inset-0" style={{opacity:.03,backgroundImage:"linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",backgroundSize:"60px 60px"}} />
+      <div className="absolute inset-0" style={{opacity:.03,backgroundImage:`linear-gradient(var(--text-primary) 1px, transparent 1px), linear-gradient(90deg, var(--text-primary) 1px, transparent 1px)`,backgroundSize:"60px 60px"}} />
 
       {wallpaperEnabled && displayWallpaper && (
         <div className="absolute inset-0">

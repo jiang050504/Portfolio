@@ -49,7 +49,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mb-4 font-mono text-sm text-cyan-400"
+          className="mb-4 font-mono text-sm text-[var(--accent-primary)]"
         >
           {heroGreeting}
         </motion.p>
@@ -61,7 +61,7 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.15 }}
           className="mb-6 text-5xl font-bold tracking-tight sm:text-7xl"
         >
-          <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r [--hue1:var(--accent-secondary)] [--hue2:var(--accent-primary)] bg-clip-text text-transparent">
             {heroName}
           </span>
         </motion.h1>
@@ -74,10 +74,10 @@ export default function Hero() {
           className="mb-8 flex items-center justify-center gap-1 text-xl text-[var(--text-secondary)] sm:text-2xl"
         >
           <span>一名</span>
-          <span className="font-semibold text-cyan-400 min-w-[8ch] text-left">
+          <span className="font-semibold text-[var(--accent-primary)] min-w-[8ch] text-left">
             {displayText}
           </span>
-          <span className="animate-pulse text-cyan-400">|</span>
+          <span className="animate-pulse text-[var(--accent-primary)]">|</span>
         </motion.div>
 
         {/* Description */}

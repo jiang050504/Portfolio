@@ -118,7 +118,7 @@ export default function ProjectCard({
       </div>
 
       {/* Title */}
-      <h3 className="relative z-10 mb-2 text-lg font-semibold text-[var(--text-primary)] transition-colors group-hover/title:text-cyan-400">
+      <h3 className="relative z-10 mb-2 text-lg font-semibold text-[var(--text-primary)] transition-colors group-hover/title:text-[var(--accent-primary)]">
         {title}
       </h3>
 
@@ -140,13 +140,13 @@ export default function ProjectCard({
       <div className="relative z-20 flex gap-3">
         {github && (
           <a href={github} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1.5 text-sm text-[var(--text-secondary)] transition-colors hover:text-cyan-400">
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-primary)]">
             <Globe size={14} /> 源码
           </a>
         )}
         {demo && (
           <a href={demo} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1.5 text-sm text-[var(--text-secondary)] transition-colors hover:text-purple-400">
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-secondary)]">
             <ExternalLink size={14} /> 演示
           </a>
         )}

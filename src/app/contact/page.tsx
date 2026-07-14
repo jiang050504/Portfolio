@@ -52,7 +52,7 @@ export default function ContactPage() {
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 className="group flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.03] p-5 backdrop-blur-sm transition-all hover:border-cyan-500/20 hover:shadow-[0_0_20px_rgba(6,182,212,0.06)]"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/[0.05] text-cyan-400">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/[0.05] text-[var(--accent-primary)]">
                   <Icon size={20} />
                 </div>
                 <div>

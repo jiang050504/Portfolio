@@ -44,13 +44,13 @@ export default function Timeline({ items }: TimelineProps) {
                 }`}
               >
                 <GlowCard>
-                  <span className="mb-1 inline-block font-mono text-xs text-cyan-400">
+                  <span className="mb-1 inline-block font-mono text-xs text-[var(--accent-primary)]">
                     {item.period}
                   </span>
                   <h3 className="text-lg font-semibold text-[var(--text-primary)]">
                     {item.title}
                   </h3>
-                  <p className="mb-2 text-sm text-purple-400">
+                  <p className="mb-2 text-sm text-[var(--accent-secondary)]">
                     {item.organization}
                   </p>
                   <p className="text-sm leading-relaxed text-[var(--text-secondary)]">

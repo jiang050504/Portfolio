@@ -24,7 +24,7 @@ export default function BioCard({ delay = 0 }: BioCardProps) {
     >
       {/* Avatar */}
       <div className="mb-6 flex items-center gap-5">
-        <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-cyan-400/30 bg-gradient-to-br from-cyan-500/20 to-purple-500/20">
+        <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-[var(--accent-primary)]/30 bg-gradient-to-br from-cyan-500/20 to-purple-500/20">
           {avatarPath ? (
             <img
               src={asset(avatarPath)}
@@ -32,14 +32,14 @@ export default function BioCard({ delay = 0 }: BioCardProps) {
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-cyan-400">
+            <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-[var(--accent-primary)]">
               {aboutName.slice(0, 3).toUpperCase()}
             </div>
           )}
         </div>
         <div>
           <h3 className="text-xl font-bold text-[var(--text-primary)]">{aboutName}</h3>
-          <p className="text-sm text-cyan-400">{aboutRole}</p>
+          <p className="text-sm text-[var(--accent-primary)]">{aboutRole}</p>
         </div>
       </div>
 

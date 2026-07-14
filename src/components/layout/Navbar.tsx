@@ -41,7 +41,7 @@ export default function Navbar() {
                 href={link.href}
                 className={`relative rounded-lg px-5 py-2.5 text-base font-medium transition-colors ${
                   isActive
-                    ? "text-cyan-400"
+                    ? "text-[var(--accent-primary)]"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
@@ -49,7 +49,7 @@ export default function Navbar() {
                 {isActive && (
                   <motion.div
                     layoutId="navbar-indicator"
-                    className="absolute inset-0 rounded-lg bg-cyan-400/10 border border-cyan-400/20"
+                    className="absolute inset-0 rounded-lg bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
@@ -87,7 +87,7 @@ export default function Navbar() {
                     onClick={() => setIsOpen(false)}
                     className={`rounded-lg px-5 py-3 text-base font-medium transition-colors ${
                       isActive
-                        ? "bg-cyan-400/10 text-cyan-400"
+                        ? "bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]"
                         : "text-[var(--text-secondary)] hover:bg-white/[0.03] hover:text-[var(--text-primary)]"
                     }`}
                   >

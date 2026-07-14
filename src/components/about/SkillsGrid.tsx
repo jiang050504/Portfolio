@@ -29,7 +29,7 @@ export default function SkillsGrid() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: catIdx * 0.15 + idx * 0.05 }}
-                className="rounded-full border border-cyan-400/10 bg-cyan-400/5 px-4 py-1.5 text-sm text-cyan-300/80 transition-colors hover:border-cyan-400/30 hover:bg-cyan-400/10 hover:text-cyan-300"
+                className="rounded-full border border-[var(--accent-primary)]/10 bg-[var(--accent-primary)]/5 px-4 py-1.5 text-sm text-[var(--accent-primary)]/80 transition-colors hover:border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/10 hover:text-[var(--accent-primary)]"
               >
                 {skill}
               </motion.span>
