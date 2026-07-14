@@ -26,7 +26,8 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent"
+          className="text-lg font-bold bg-clip-text text-transparent"
+          style={{backgroundImage:"var(--gradient-hero)"}}
         >
           {content.heroName}
         </Link>
