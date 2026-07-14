@@ -4,314 +4,107 @@ import { useEffect, useRef, useCallback } from "react";
 import { useContent } from "@/context/ContentContext";
 import { asset } from "@/lib/path";
 
-/* ================================================================
-   Cyber Particles — 网络节点粒子（暗夜科技主题）
-   ================================================================ */
-function useCyberParticles(
-  canvasRef: React.RefObject<HTMLCanvasElement | null>,
-  active: boolean
-) {
-  const particlesRef = useRef<
-    { x: number; y: number; vx: number; vy: number; r: number }[]
-  >([]);
-  const animRef = useRef<number>(0);
+// Theme default wallpapers
+const DEFAULT_WALLPAPERS: Record<string, string> = {
+  frostmoon: "/wallpapers/霜月.png",
+  hengyue: "/wallpapers/恒月.png",
+  hongyue: "/wallpapers/虹月.png",
+};
 
+// ==================== Cyber ====================
+function useCyberParticles(canvasRef: React.RefObject<HTMLCanvasElement | null>, active: boolean) {
+  const pRef = useRef<{x:number;y:number;vx:number;vy:number;r:number}[]>([]);
+  const aRef = useRef(0);
   const init = useCallback(() => {
-    if (!active) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const count = Math.min(80, Math.floor(window.innerWidth / 15));
-    particlesRef.current = Array.from({ length: count }, () => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: (Math.random() - 0.5) * 0.5,
-      r: Math.random() * 2 + 0.5,
-    }));
-
-    const draw = () => {
-      if (!ctx || !canvas) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      particlesRef.current.forEach((p) => {
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(6, 182, 212, 0.15)";
-        ctx.fill();
-      });
-
-      particlesRef.current.forEach((a, i) => {
-        particlesRef.current.slice(i + 1).forEach((b) => {
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.strokeStyle = `rgba(6, 182, 212, ${0.04 * (1 - dist / 120)})`;
-            ctx.stroke();
-          }
-        });
-      });
-
-      animRef.current = requestAnimationFrame(draw);
-    };
-    draw();
-    return () => {
-      window.removeEventListener("resize", resize);
-      cancelAnimationFrame(animRef.current);
-    };
-  }, [active, canvasRef]);
-
-  useEffect(() => { const c = init(); return () => c?.(); }, [init]);
+    if(!active)return;const c=canvasRef.current;if(!c)return;const ctx=c.getContext("2d");if(!ctx)return;
+    const R=()=>{c.width=window.innerWidth;c.height=window.innerHeight};R();window.addEventListener("resize",R);
+    const n=Math.min(80,Math.floor(window.innerWidth/15));
+    pRef.current=Array.from({length:n},()=>({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,r:Math.random()*2+.5}));
+    const D=()=>{if(!ctx||!c)return;ctx.clearRect(0,0,c.width,c.height);
+    pRef.current.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle="rgba(6,182,212,0.15)";ctx.fill()});
+    pRef.current.forEach((a,i)=>{pRef.current.slice(i+1).forEach(b=>{const dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy);if(d<120){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(6,182,212,${0.04*(1-d/120)})`;ctx.stroke()}})});
+    aRef.current=requestAnimationFrame(D)};D();return()=>{window.removeEventListener("resize",R);cancelAnimationFrame(aRef.current)}},[active,canvasRef]);
+  useEffect(()=>{const c=init();return()=>c?.()},[init]);
 }
 
-/* ================================================================
-   Snowflakes — 霜雪飘落粒子（霜月主题）
-   特性：飘落 + 旋转 + 鼠标微风 + 冰晶连线 + 发光光晕
-   ================================================================ */
-interface Snowflake {
-  x: number; y: number; r: number;
-  vy: number; vx: number;
-  opacity: number; rotation: number; rotSpeed: number;
-}
-
-function useSnowflakes(
-  canvasRef: React.RefObject<HTMLCanvasElement | null>,
-  active: boolean
-) {
-  const flakesRef = useRef<Snowflake[]>([]);
-  const animRef = useRef<number>(0);
-  const mouseRef = useRef({ x: 0, y: 0 });
-  const targetMouseRef = useRef({ x: 0, y: 0 });
-
+// ==================== Frostmoon ====================
+function useSnowflakes(canvasRef: React.RefObject<HTMLCanvasElement | null>, active: boolean) {
+  const fRef = useRef<{x:number;y:number;r:number;vy:number;vx:number;o:number;rot:number;rs:number}[]>([]);
+  const aRef = useRef(0);const mRef=useRef({x:0,y:0});const tRef=useRef({x:0,y:0});
   const init = useCallback(() => {
-    if (!active) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const count = Math.min(100, Math.floor(window.innerWidth / 10));
-    flakesRef.current = Array.from({ length: count }, () => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      r: Math.random() * 3 + 0.5,
-      vy: Math.random() * 0.4 + 0.15,
-      vx: (Math.random() - 0.5) * 0.3,
-      opacity: Math.random() * 0.5 + 0.2,
-      rotation: Math.random() * 360,
-      rotSpeed: (Math.random() - 0.5) * 0.5,
-    }));
-
-    const onMouseMove = (e: MouseEvent) => {
-      targetMouseRef.current = { x: e.clientX, y: e.clientY };
-    };
-    window.addEventListener("mousemove", onMouseMove);
-
-    const draw = () => {
-      if (!ctx || !canvas) return;
-      mouseRef.current.x += (targetMouseRef.current.x - mouseRef.current.x) * 0.02;
-      mouseRef.current.y += (targetMouseRef.current.y - mouseRef.current.y) * 0.02;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      flakesRef.current.forEach((f) => {
-        f.y += f.vy;
-        const mx = (mouseRef.current.x - canvas.width / 2) / canvas.width;
-        f.x += f.vx + mx * 0.3;
-        f.rotation += f.rotSpeed;
-        if (f.y > canvas.height + 10) { f.y = -10; f.x = Math.random() * canvas.width; }
-        if (f.x > canvas.width + 10) f.x = -10;
-        if (f.x < -10) f.x = canvas.width + 10;
-
-        ctx.save();
-        ctx.translate(f.x, f.y);
-        ctx.rotate((f.rotation * Math.PI) / 180);
-        ctx.beginPath();
-        ctx.arc(0, 0, f.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(210, 230, 245, ${f.opacity})`;
-        ctx.fill();
-        const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, f.r * 3);
-        glow.addColorStop(0, `rgba(220, 240, 255, ${f.opacity * 0.6})`);
-        glow.addColorStop(1, "rgba(220, 240, 255, 0)");
-        ctx.beginPath();
-        ctx.arc(0, 0, f.r * 3, 0, Math.PI * 2);
-        ctx.fillStyle = glow;
-        ctx.fill();
-        ctx.restore();
-      });
-
-      // Frost crystal connections
-      for (let i = 0; i < flakesRef.current.length; i++) {
-        for (let j = i + 1; j < flakesRef.current.length; j++) {
-          const a = flakesRef.current[i];
-          const b = flakesRef.current[j];
-          const dx = a.x - b.x; const dy = a.y - b.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 90) {
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.strokeStyle = `rgba(200, 225, 245, ${0.03 * (1 - dist / 90)})`;
-            ctx.stroke();
-          }
-        }
-      }
-      animRef.current = requestAnimationFrame(draw);
-    };
-    draw();
-    return () => {
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("mousemove", onMouseMove);
-      cancelAnimationFrame(animRef.current);
-    };
-  }, [active, canvasRef]);
-
-  useEffect(() => { const c = init(); return () => c?.(); }, [init]);
+    if(!active)return;const c=canvasRef.current;if(!c)return;const ctx=c.getContext("2d");if(!ctx)return;
+    const R=()=>{c.width=window.innerWidth;c.height=window.innerHeight};R();window.addEventListener("resize",R);
+    const n=Math.min(100,Math.floor(window.innerWidth/10));
+    fRef.current=Array.from({length:n},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*3+.5,vy:Math.random()*.4+.15,vx:(Math.random()-.5)*.3,o:Math.random()*.5+.2,rot:Math.random()*360,rs:(Math.random()-.5)*.5}));
+    const M=(e:MouseEvent)=>{tRef.current={x:e.clientX,y:e.clientY}};window.addEventListener("mousemove",M);
+    const D=()=>{if(!ctx||!c)return;mRef.current.x+=(tRef.current.x-mRef.current.x)*.02;mRef.current.y+=(tRef.current.y-mRef.current.y)*.02;ctx.clearRect(0,0,c.width,c.height);
+    fRef.current.forEach(f=>{f.y+=f.vy;const mx=(mRef.current.x-c.width/2)/c.width;f.x+=f.vx+mx*.3;f.rot+=f.rs;if(f.y>c.height+10){f.y=-10;f.x=Math.random()*c.width}if(f.x>c.width+10)f.x=-10;if(f.x<-10)f.x=c.width+10;ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.rot*Math.PI/180);ctx.beginPath();ctx.arc(0,0,f.r,0,Math.PI*2);ctx.fillStyle=`rgba(210,230,245,${f.o})`;ctx.fill();const g=ctx.createRadialGradient(0,0,0,0,0,f.r*3);g.addColorStop(0,`rgba(220,240,255,${f.o*.6})`);g.addColorStop(1,"transparent");ctx.beginPath();ctx.arc(0,0,f.r*3,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();ctx.restore()});
+    for(let i=0;i<fRef.current.length;i++)for(let j=i+1;j<fRef.current.length;j++){const a=fRef.current[i],b=fRef.current[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy);if(d<90){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(200,225,245,${.03*(1-d/90)})`;ctx.stroke()}}
+    aRef.current=requestAnimationFrame(D)};D();return()=>{window.removeEventListener("resize",R);window.removeEventListener("mousemove",M);cancelAnimationFrame(aRef.current)}},[active,canvasRef]);
+  useEffect(()=>{const c=init();return()=>c?.()},[init]);
 }
 
-/* ================================================================
-   Background — 全局背景容器
-   ================================================================ */
+// ==================== Hengyue ====================
+function useGoldDust(canvasRef: React.RefObject<HTMLCanvasElement | null>, active: boolean) {
+  const dRef=useRef<{x:number;y:number;r:number;vy:number;vx:number;o:number;p:number;s:number}[]>([]);
+  const aRef=useRef(0);const tRef=useRef(0);
+  const init=useCallback(()=>{
+    if(!active)return;const c=canvasRef.current;if(!c)return;const ctx=c.getContext("2d");if(!ctx)return;
+    const R=()=>{c.width=window.innerWidth;c.height=window.innerHeight};R();window.addEventListener("resize",R);
+    const n=Math.min(80,Math.floor(window.innerWidth/12));
+    dRef.current=Array.from({length:n},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*2+.5,vy:Math.random()*.3+.1,vx:(Math.random()-.5)*.4,o:Math.random()*.5+.3,p:Math.random()*Math.PI*2,s:Math.random()*1.5+.5}));
+    const D=()=>{if(!ctx||!c)return;tRef.current+=.016;const t=tRef.current;ctx.clearRect(0,0,c.width,c.height);
+    dRef.current.forEach(d=>{d.y+=d.vy;d.x+=d.vx+Math.sin(t*d.s+d.p)*.3;if(d.y>c.height+10){d.y=-10;d.x=Math.random()*c.width}if(d.x<0)d.x=c.width;if(d.x>c.width)d.x=0;const a=d.o*(.6+.4*Math.sin(t*2+d.p));ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,224,139,${a})`;ctx.fill();const g=ctx.createRadialGradient(d.x,d.y,0,d.x,d.y,d.r*4);g.addColorStop(0,`rgba(255,213,111,${a*.5})`);g.addColorStop(1,"transparent");ctx.beginPath();ctx.arc(d.x,d.y,d.r*4,0,Math.PI*2);ctx.fillStyle=g;ctx.fill()});
+    aRef.current=requestAnimationFrame(D)};D();return()=>{window.removeEventListener("resize",R);cancelAnimationFrame(aRef.current)}},[active,canvasRef]);
+  useEffect(()=>{const c=init();return()=>c?.()},[init]);
+}
+
+// ==================== Hongyue ====================
+function useEmbers(canvasRef: React.RefObject<HTMLCanvasElement | null>, active: boolean) {
+  const eRef=useRef<{x:number;y:number;r:number;vy:number;vx:number;o:number;t:number;p:number}[]>([]);
+  const aRef=useRef(0);const tRef=useRef(0);
+  const init=useCallback(()=>{
+    if(!active)return;const c=canvasRef.current;if(!c)return;const ctx=c.getContext("2d");if(!ctx)return;
+    const R=()=>{c.width=window.innerWidth;c.height=window.innerHeight};R();window.addEventListener("resize",R);
+    const n=Math.min(60,Math.floor(window.innerWidth/16));
+    eRef.current=Array.from({length:n},()=>({x:Math.random()*c.width*.4,y:Math.random()*c.height,r:Math.random()*2.5+.5,vy:Math.random()*.5+.2,vx:Math.random()*.4+.2,o:Math.random()*.5+.3,t:Math.random()*4+3,p:Math.random()*Math.PI*2}));
+    const D=()=>{if(!ctx||!c)return;tRef.current+=.016;const t=tRef.current;ctx.clearRect(0,0,c.width,c.height);
+    eRef.current.forEach(e=>{e.y+=e.vy;e.x+=e.vx;if(e.y>c.height+10){e.y=-10;e.x=Math.random()*c.width*.4}if(e.x>c.width+10){e.x=-10;e.y=Math.random()*c.height}const a=e.o*(.6+.4*Math.sin(t*1.5+e.p));
+    for(let j=1;j<=e.t;j++){const tx=e.x-j*1.5,ty=e.y-j*2;ctx.beginPath();ctx.arc(tx,ty,e.r*(1-j*.15),0,Math.PI*2);ctx.fillStyle=`rgba(200,40,45,${a*(1-j*.2)})`;ctx.fill()}
+    ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);const g=ctx.createRadialGradient(e.x,e.y,0,e.x,e.y,e.r*3);g.addColorStop(0,`rgba(255,80,70,${a})`);g.addColorStop(.4,`rgba(220,50,50,${a*.7})`);g.addColorStop(1,"transparent");ctx.fillStyle=g;ctx.fill()});
+    const bp=(Math.sin(t*.15)+1)/2;if(bp>.7){const ba=(bp-.7)/.3*.06;
+    ctx.save();ctx.beginPath();ctx.moveTo(c.width*.15,-10);ctx.lineTo(c.width*.5,c.height*.7);ctx.lineTo(c.width*.55,c.height*.7);ctx.lineTo(c.width*.2,-10);ctx.closePath();const bg1=ctx.createLinearGradient(0,0,0,c.height*.7);bg1.addColorStop(0,`rgba(200,50,60,${ba})`);bg1.addColorStop(1,`rgba(140,20,30,${ba*.3})`);ctx.fillStyle=bg1;ctx.fill();ctx.restore();
+    ctx.save();ctx.beginPath();ctx.moveTo(c.width*.6,-10);ctx.lineTo(c.width*.85,c.height*.6);ctx.lineTo(c.width*.9,c.height*.6);ctx.lineTo(c.width*.65,-10);ctx.closePath();const bg2=ctx.createLinearGradient(0,0,0,c.height*.6);bg2.addColorStop(0,`rgba(180,40,50,${ba*.7})`);bg2.addColorStop(1,`rgba(120,15,20,${ba*.2})`);ctx.fillStyle=bg2;ctx.fill();ctx.restore()}
+    aRef.current=requestAnimationFrame(D)};D();return()=>{window.removeEventListener("resize",R);cancelAnimationFrame(aRef.current)}},[active,canvasRef]);
+  useEffect(()=>{const c=init();return()=>c?.()},[init]);
+}
+
+// ==================== Wrapper ====================
 export default function Background() {
   const { content } = useContent();
-  const {
-    theme,
-    wallpaperEnabled,
-    wallpaperPath,
-    wallpaperOpacity,
-    wallpaperBlur,
-    particlesOnWallpaper,
-  } = content;
+  const { theme, wallpaperEnabled, wallpaperPath, wallpaperOpacity, wallpaperBlur, particlesOnWallpaper } = content;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const isFrostmoon = theme === "frostmoon";
   const showParticles = !wallpaperEnabled || particlesOnWallpaper;
 
-  // Always call both hooks — they no-op when active=false
-  useCyberParticles(canvasRef, !isFrostmoon && showParticles);
-  useSnowflakes(canvasRef, isFrostmoon && showParticles);
+  useCyberParticles(canvasRef, theme==="cyber" && showParticles);
+  useSnowflakes(canvasRef, theme==="frostmoon" && showParticles);
+  useGoldDust(canvasRef, theme==="hengyue" && showParticles);
+  useEmbers(canvasRef, theme==="hongyue" && showParticles);
+
+  // Use theme default wallpaper if none set
+  const displayWallpaper = wallpaperPath || (theme !== "cyber" ? DEFAULT_WALLPAPERS[theme] || "" : "");
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
-      {/* Grid overlay */}
-      <div
-        className="absolute inset-0"
-        style={{
-          opacity: isFrostmoon ? 0.02 : 0.03,
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-          backgroundSize: isFrostmoon ? "80px 80px" : "60px 60px",
-        }}
-      />
+      <div className="absolute inset-0" style={{opacity:.03,backgroundImage:"linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",backgroundSize:"60px 60px"}} />
 
-      {/* Wallpaper */}
-      {wallpaperEnabled && wallpaperPath && (
+      {wallpaperEnabled && displayWallpaper && (
         <div className="absolute inset-0">
-          <img
-            src={asset(wallpaperPath)}
-            alt=""
-            className="h-full w-full"
-            style={{
-              objectFit: "cover",
-              opacity: wallpaperOpacity,
-              filter: wallpaperBlur > 0 ? `blur(${wallpaperBlur}px)` : undefined,
-            }}
-          />
-          {isFrostmoon && (
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(180,210,230,0.08) 0%, rgba(140,180,210,0.04) 50%, rgba(100,140,170,0.06) 100%)",
-                mixBlendMode: "overlay",
-              }}
-            />
-          )}
+          <img src={asset(displayWallpaper)} alt="" className="h-full w-full" style={{objectFit:"cover",opacity:wallpaperOpacity,filter:wallpaperBlur>0?`blur(${wallpaperBlur}px)`:undefined}} />
         </div>
       )}
 
-      {/* Cyber orbs */}
-      {!isFrostmoon && showParticles && (
-        <>
-          <div className="absolute -top-40 left-1/4 h-[500px] w-[500px] rounded-full bg-cyan-500/10 blur-[120px]" />
-          <div className="absolute -bottom-40 right-1/4 h-[500px] w-[500px] rounded-full bg-purple-500/10 blur-[120px]" />
-        </>
-      )}
-
-      {/* Frost Moon orbs */}
-      {isFrostmoon && (
-        <>
-          {/* Moon */}
-          <div
-            className="pointer-events-none absolute -top-20 right-[15%] h-[350px] w-[350px]"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(230,240,250,0.25) 0%, rgba(200,220,240,0.1) 30%, rgba(160,200,225,0.03) 60%, transparent 70%)",
-              filter: "blur(40px)",
-              animation: "moon-pulse 8s ease-in-out infinite",
-            }}
-          />
-          {/* Secondary glow */}
-          <div
-            className="pointer-events-none absolute -bottom-20 left-[20%] h-[250px] w-[400px]"
-            style={{
-              background:
-                "radial-gradient(ellipse, rgba(190,215,235,0.12) 0%, rgba(160,200,220,0.05) 40%, transparent 70%)",
-              filter: "blur(60px)",
-            }}
-          />
-          {/* Ground frost */}
-          <div
-            className="pointer-events-none absolute bottom-0 left-0 right-0 h-[30vh]"
-            style={{
-              background:
-                "linear-gradient(0deg, rgba(170,200,220,0.06) 0%, rgba(140,180,200,0.03) 40%, transparent 100%)",
-              animation: "mist-drift 20s ease-in-out infinite",
-            }}
-          />
-          {/* Ambient glows */}
-          <div
-            className="pointer-events-none absolute left-0 top-[20%] h-[200px] w-[200px] opacity-30"
-            style={{
-              background: "radial-gradient(circle, rgba(200,220,240,0.06) 0%, transparent 70%)",
-              filter: "blur(80px)",
-            }}
-          />
-          <div
-            className="pointer-events-none absolute right-0 top-[50%] h-[150px] w-[150px] opacity-25"
-            style={{
-              background: "radial-gradient(circle, rgba(180,210,230,0.05) 0%, transparent 70%)",
-              filter: "blur(60px)",
-            }}
-          />
-        </>
-      )}
-
-      {/* Shared particle canvas */}
       <canvas ref={canvasRef} className="absolute inset-0" />
     </div>
   );
