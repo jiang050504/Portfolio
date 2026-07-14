@@ -80,9 +80,22 @@ function useEmbers(canvasRef: React.RefObject<HTMLCanvasElement | null>, active:
 }
 
 // ==================== Wrapper ====================
+// Preload all theme wallpapers on mount for instant switching
+function usePreloadWallpapers() {
+  useEffect(() => {
+    const urls = Object.values(DEFAULT_WALLPAPERS);
+    urls.forEach((url) => {
+      const img = new Image();
+      img.src = url;
+    });
+  }, []);
+}
+
 export default function Background() {
   const { content } = useContent();
   const { theme, wallpaperEnabled, wallpaperPath, wallpaperOpacity, wallpaperBlur, particlesOnWallpaper } = content;
+
+  usePreloadWallpapers();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const showParticles = !wallpaperEnabled || particlesOnWallpaper;
