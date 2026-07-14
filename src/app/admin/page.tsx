@@ -263,28 +263,579 @@ function ProjectEditor({
       >
         <Trash2 size={14} />
       </button>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <button onClick={() => updateDraft({ theme: "cyber" })} className={draft.theme === "cyber" ? "rounded-xl border border-cyan-400/40 bg-cyan-400/10 p-3 text-left" : "rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-left hover:border-cyan-400/20"}>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="项目名称">
+          <Input
+            value={project.title}
+            onChange={(v) => onChange({ ...project, title: v })}
+          />
+        </Field>
+        <Field label="GitHub 链接">
+          <Input
+            value={project.github}
+            onChange={(v) => onChange({ ...project, github: v })}
+            placeholder="https://github.com/..."
+          />
+        </Field>
+      </div>
+      <Field label="演示链接（飞书/网页等）" color="text-green-400">
+        <Input
+          value={project.demo}
+          onChange={(v) => onChange({ ...project, demo: v })}
+          placeholder="https://..."
+        />
+      </Field>
+      {/* Multiple images */}
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-sm font-medium text-zinc-400">
+            <span className="text-purple-400">项目截图（{project.images?.length || 0} 张）</span>
+          </span>
+          <button
+            onClick={() => onChange({ ...project, images: [...(project.images || []), ""] })}
+            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-cyan-400/30 px-2 py-1 text-xs text-cyan-400 transition-colors hover:bg-cyan-400/5"
+          >
+            <Plus size={12} /> 添加图片
+          </button>
+        </div>
+        <div className="space-y-2">
+          {(project.images || []).map((img, i) => (
+            <FileUpload
+              key={i}
+              label={`截图 ${i + 1}`}
+              dir="projects"
+              currentPath={img}
+              onUploaded={(path) => {
+                const imgs = [...(project.images || [])];
+                imgs[i] = path;
+                onChange({ ...project, images: imgs });
+              }}
+              accept="image/*"
+              icon={<ImageIcon size={16} />}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Multiple videos */}
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-sm font-medium text-zinc-400">
+            <span className="text-purple-400">演示视频（{project.videos?.length || 0} 个）</span>
+          </span>
+          <button
+            onClick={() => onChange({ ...project, videos: [...(project.videos || []), ""] })}
+            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-purple-400/30 px-2 py-1 text-xs text-purple-400 transition-colors hover:bg-purple-400/5"
+          >
+            <Plus size={12} /> 添加视频
+          </button>
+        </div>
+        <div className="space-y-2">
+          {(project.videos || []).map((vid, i) => (
+            <FileUpload
+              key={i}
+              label={`视频 ${i + 1}`}
+              dir="projects"
+              currentPath={vid}
+              onUploaded={(path) => {
+                const vids = [...(project.videos || [])];
+                vids[i] = path;
+                onChange({ ...project, videos: vids });
+              }}
+              accept="video/*"
+              icon={<Video size={16} />}
+            />
+          ))}
+        </div>
+      </div>
+      <Field label="项目描述（卡片上显示的简短描述）">
+        <Textarea
+          value={project.description}
+          onChange={(v) => onChange({ ...project, description: v })}
+          rows={2}
+        />
+      </Field>
+      <Field label="详细介绍（项目详情页展示的完整内容）">
+        <Textarea
+          value={project.detail || ""}
+          onChange={(v) => onChange({ ...project, detail: v })}
+          rows={5}
+          placeholder="在详情页展示的完整项目介绍..."
+        />
+      </Field>
+      <Field label="技术标签（逗号分隔）">
+        <Input
+          value={project.tags.join(", ")}
+          onChange={(v) =>
+            onChange({
+              ...project,
+              tags: v.split(",").map((t) => t.trim()).filter(Boolean),
+            })
+          }
+          placeholder="React, Node.js, TypeScript"
+        />
+      </Field>
+    </div>
+  );
+}
+
+// ======================= Experience Editor =======================
+
+function ExperienceEditor({
+  exp,
+  onChange,
+  onDelete,
+}: {
+  exp: Experience;
+  onChange: (e: Experience) => void;
+  onDelete: () => void;
+}) {
+  return (
+    <div className="relative rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 space-y-3">
+      <button
+        onClick={onDelete}
+        className="absolute right-3 top-3 rounded p-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400"
+      >
+        <Trash2 size={14} />
+      </button>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Field label="时间">
+          <Input
+            value={exp.period}
+            onChange={(v) => onChange({ ...exp, period: v })}
+          />
+        </Field>
+        <Field label="职位/学位">
+          <Input
+            value={exp.title}
+            onChange={(v) => onChange({ ...exp, title: v })}
+          />
+        </Field>
+        <Field label="公司/学校">
+          <Input
+            value={exp.organization}
+            onChange={(v) => onChange({ ...exp, organization: v })}
+          />
+        </Field>
+      </div>
+      <Field label="描述">
+        <Textarea
+          value={exp.description}
+          onChange={(v) => onChange({ ...exp, description: v })}
+        />
+      </Field>
+    </div>
+  );
+}
+
+// ======================= Main Page =======================
+
+export default function AdminPage() {
+  const { content, updateContent, resetContent } = useContent();
+  const [activeTab, setActiveTab] = useState<TabKey>("hero");
+  const [draft, setDraft] = useState<SiteContent>(() =>
+    JSON.parse(JSON.stringify(content))
+  );
+  const [saved, setSaved] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const router = useRouter();
+
+  const handleSave = () => {
+    updateContent(draft);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleReset = () => {
+    if (window.confirm("确定要恢复所有默认内容吗？你当前的修改将丢失。")) {
+      resetContent();
+      setDraft(JSON.parse(JSON.stringify(defaultContent)));
+    }
+  };
+
+  const updateDraft = (partial: Partial<SiteContent>) => {
+    setDraft((prev) => ({ ...prev, ...partial }));
+  };
+
+  return (
+    <AuthGate>
+    <div className="min-h-screen pt-20 pb-16 relative z-10">
+      <div className="mx-auto max-w-4xl px-6">
+        {/* Header */}
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push("/")}
+              className="flex items-center gap-2 rounded-lg border border-white/[0.08] px-4 py-2.5 text-base text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200"
+            >
+              <ArrowLeft size={14} />
+              <ArrowLeft size={18} />
+              回到网站
+            </button>
+            <h1 className="text-2xl font-bold text-zinc-100">内容编辑后台</h1>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={handleReset}
+              className="flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-sm text-red-400 transition-colors hover:bg-red-500/10"
+            >
+              <Undo2 size={14} />
+              恢复默认
+            </button>
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+            >
+              <Save size={14} />
+              {saved ? "已保存！" : "保存修改"}
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="mb-8 flex flex-wrap gap-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-1">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                activeTab === tab.key
+                  ? "bg-cyan-400/10 text-cyan-400 shadow-sm"
+                  : "text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab content */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-4"
+          >
+            {/* ---- HERO ---- */}
+            {activeTab === "hero" && (
+              <>
+                <Field label="问候语（如：你好，我是）">
+                  <Input
+                    value={draft.heroGreeting}
+                    onChange={(v) => updateDraft({ heroGreeting: v })}
+                  />
+                </Field>
+                <Field label="你的姓名">
+                  <Input
+                    value={draft.heroName}
+                    onChange={(v) => updateDraft({ heroName: v })}
+                  />
+                </Field>
+                <Field label="身份标签（逗号分隔，打字机效果轮播）">
+                  <Input
+                    value={draft.heroRoles.join(", ")}
+                    onChange={(v) =>
+                      updateDraft({
+                        heroRoles: v.split(",").map((r) => r.trim()).filter(Boolean),
+                      })
+                    }
+                  />
+                </Field>
+                <Field label="简介描述">
+                  <Textarea
+                    value={draft.heroDescription}
+                    onChange={(v) => updateDraft({ heroDescription: v })}
+                    rows={3}
+                  />
+                </Field>
+                {/* Avatar upload + preview */}
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <FileUpload
+                      label="头像图片（上传后点保存即可生效）"
+                      dir="avatar"
+                      currentPath={draft.avatarPath}
+                      onUploaded={(path) => updateDraft({ avatarPath: path })}
+                      accept="image/*"
+                      icon={<ImageIcon size={18} />}
+                    />
+                  </div>
+                  {/* Avatar preview */}
+                  <div className="shrink-0">
+                    <span className="mb-1.5 block text-sm font-medium text-zinc-400">预览</span>
+                    <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-cyan-400/30 bg-gradient-to-br from-cyan-500/20 to-purple-500/20">
+                      {draft.avatarPath ? (
+                        <img src={asset(draft.avatarPath)} alt="头像预览" className="h-full w-full object-cover cursor-pointer" onClick={() => window.open(asset(draft.avatarPath), "_blank")} title="点击查看大图" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xl font-bold text-cyan-400">
+                          {draft.aboutName.slice(0, 3).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* ---- ABOUT ---- */}
+            {activeTab === "about" && (
+              <>
+                <Field label="页面标题">
+                  <Input value={draft.aboutTitle} onChange={(v) => updateDraft({ aboutTitle: v })} />
+                </Field>
+                <Field label="页面副标题">
+                  <Input value={draft.aboutSubtitle} onChange={(v) => updateDraft({ aboutSubtitle: v })} />
+                </Field>
+                <Field label="姓名">
+                  <Input value={draft.aboutName} onChange={(v) => updateDraft({ aboutName: v })} />
+                </Field>
+                <Field label="职位">
+                  <Input value={draft.aboutRole} onChange={(v) => updateDraft({ aboutRole: v })} />
+                </Field>
+                <Field label="个人简介（每行一段）">
+                  <Textarea
+                    value={draft.aboutBio.join("\n")}
+                    onChange={(v) => updateDraft({ aboutBio: v.split("\n").filter(Boolean) })}
+                    rows={6}
+                  />
+                </Field>
+                <h3 className="mt-6 text-sm font-medium text-zinc-300">快速信息</h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {draft.aboutQuickInfo.map((info, i) => (
+                    <div key={i} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 space-y-2">
+                      <Input value={info.label} onChange={(v) => {
+                        const arr = [...draft.aboutQuickInfo];
+                        arr[i] = { ...arr[i], label: v };
+                        updateDraft({ aboutQuickInfo: arr });
+                      }} placeholder="标签" />
+                      <Input value={info.value} onChange={(v) => {
+                        const arr = [...draft.aboutQuickInfo];
+                        arr[i] = { ...arr[i], value: v };
+                        updateDraft({ aboutQuickInfo: arr });
+                      }} placeholder="值" />
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* ---- SKILLS ---- */}
+            {activeTab === "skills" && (
+              <>
+                {draft.skills.map((cat, catIdx) => (
+                  <div key={catIdx} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Field label="分类名称">
+                        <Input value={cat.title} onChange={(v) => {
+                          const arr = [...draft.skills];
+                          arr[catIdx] = { ...arr[catIdx], title: v };
+                          updateDraft({ skills: arr });
+                        }} />
+                      </Field>
+                      <button
+                        onClick={() => updateDraft({ skills: draft.skills.filter((_, i) => i !== catIdx) })}
+                        className="mt-5 rounded p-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <Field label="技能（逗号分隔）">
+                      <Input
+                        value={cat.items.join(", ")}
+                        onChange={(v) => {
+                          const arr = [...draft.skills];
+                          arr[catIdx] = { ...arr[catIdx], items: v.split(",").map((s) => s.trim()).filter(Boolean) };
+                          updateDraft({ skills: arr });
+                        }}
+                      />
+                    </Field>
+                  </div>
+                ))}
+                <button
+                  onClick={() => updateDraft({ skills: [...draft.skills, { title: "新分类", items: [] }] })}
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/[0.1] py-3 text-sm text-zinc-500 transition-colors hover:border-cyan-500/30 hover:text-cyan-400"
+                >
+                  <Plus size={14} /> 添加技能分类
+                </button>
+              </>
+            )}
+
+            {/* ---- PROJECTS ---- */}
+            {activeTab === "projects" && (
+              <>
+                <Field label="页面标题">
+                  <Input value={draft.projectsTitle} onChange={(v) => updateDraft({ projectsTitle: v })} />
+                </Field>
+                <Field label="页面副标题">
+                  <Input value={draft.projectsSubtitle} onChange={(v) => updateDraft({ projectsSubtitle: v })} />
+                </Field>
+                <div className="space-y-4">
+                  {draft.projects.map((project, i) => (
+                    <ProjectEditor
+                      key={i}
+                      project={project}
+                      onChange={(p) => {
+                        const arr = [...draft.projects];
+                        arr[i] = p;
+                        updateDraft({ projects: arr });
+                      }}
+                      onDelete={() => updateDraft({ projects: draft.projects.filter((_, idx) => idx !== i) })}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => updateDraft({
+                    projects: [...draft.projects, { title: "新项目", description: "", detail: "", tags: [], github: "", demo: "", images: [], videos: [] }],
+                  })}
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/[0.1] py-3 text-sm text-zinc-500 transition-colors hover:border-cyan-500/30 hover:text-cyan-400"
+                >
+                  <Plus size={14} /> 添加项目
+                </button>
+              </>
+            )}
+
+            {/* ---- EXPERIENCE ---- */}
+            {activeTab === "experience" && (
+              <>
+                <Field label="页面标题">
+                  <Input value={draft.experienceTitle} onChange={(v) => updateDraft({ experienceTitle: v })} />
+                </Field>
+                <Field label="页面副标题">
+                  <Input value={draft.experienceSubtitle} onChange={(v) => updateDraft({ experienceSubtitle: v })} />
+                </Field>
+                <div className="space-y-4">
+                  {draft.experiences.map((exp, i) => (
+                    <ExperienceEditor
+                      key={i}
+                      exp={exp}
+                      onChange={(e) => {
+                        const arr = [...draft.experiences];
+                        arr[i] = e;
+                        updateDraft({ experiences: arr });
+                      }}
+                      onDelete={() => updateDraft({ experiences: draft.experiences.filter((_, idx) => idx !== i) })}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => updateDraft({
+                    experiences: [...draft.experiences, { period: "2025 — 至今", title: "新职位", organization: "公司名称", description: "" }],
+                  })}
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/[0.1] py-3 text-sm text-zinc-500 transition-colors hover:border-cyan-500/30 hover:text-cyan-400"
+                >
+                  <Plus size={14} /> 添加经历
+                </button>
+              </>
+            )}
+
+            {/* ---- CONTACT ---- */}
+            {activeTab === "contact" && (
+              <>
+                <Field label="页面标题">
+                  <Input value={draft.contactTitle} onChange={(v) => updateDraft({ contactTitle: v })} />
+                </Field>
+                <Field label="页面副标题">
+                  <Input value={draft.contactSubtitle} onChange={(v) => updateDraft({ contactSubtitle: v })} />
+                </Field>
+                <h3 className="mt-6 text-sm font-medium text-zinc-300">联系方式</h3>
+                <div className="space-y-3">
+                  {draft.contacts.map((c, i) => (
+                    <div key={i} className="grid gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 sm:grid-cols-4">
+                      <Input value={c.label} onChange={(v) => {
+                        const arr = [...draft.contacts]; arr[i] = { ...arr[i], label: v }; updateDraft({ contacts: arr });
+                      }} placeholder="标签" />
+                      <Input value={c.value} onChange={(v) => {
+                        const arr = [...draft.contacts]; arr[i] = { ...arr[i], value: v }; updateDraft({ contacts: arr });
+                      }} placeholder="显示值" />
+                      <Input value={c.href} onChange={(v) => {
+                        const arr = [...draft.contacts]; arr[i] = { ...arr[i], href: v }; updateDraft({ contacts: arr });
+                      }} placeholder="链接" />
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={c.icon}
+                          onChange={(v) => { const arr = [...draft.contacts]; arr[i] = { ...arr[i], icon: v.target.value }; updateDraft({ contacts: arr }); }}
+                          className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2 py-2 text-xs text-zinc-300 outline-none"
+                        >
+                          <option value="mail">邮件</option>
+                          <option value="globe">网站</option>
+                          <option value="link2">链接</option>
+                          <option value="message-circle">聊天</option>
+                          <option value="map-pin">位置</option>
+                        </select>
+                        <button onClick={() => updateDraft({ contacts: draft.contacts.filter((_, idx) => idx !== i) })} className="rounded p-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => updateDraft({ contacts: [...draft.contacts, { label: "新方式", value: "", href: "", icon: "globe" }] })}
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/[0.1] py-3 text-sm text-zinc-500 transition-colors hover:border-cyan-500/30 hover:text-cyan-400"
+                >
+                  <Plus size={14} /> 添加联系方式
+                </button>
+                <Field label="状态标题">
+                  <Input value={draft.contactStatusTitle} onChange={(v) => updateDraft({ contactStatusTitle: v })} />
+                </Field>
+                <Field label="状态文字">
+                  <Textarea value={draft.contactStatusText} onChange={(v) => updateDraft({ contactStatusText: v })} />
+                </Field>
+              </>
+            )}
+
+            {/* ---- WALLPAPER ---- */}
+            {activeTab === "wallpaper" && (
+              <>
+                {/* Theme selector */}
+                <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 space-y-4">
+                  <h3 className="text-sm font-medium text-zinc-300 flex items-center gap-2">
+                    <Layers size={16} className="text-purple-400" />
+                    主题选择
+                  </h3>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {/* Cyber theme */}
+                    <button
+                      onClick={() => updateDraft({ theme: "cyber" })}
+                      className={`rounded-xl border p-4 text-left transition-all ${
+                        draft.theme === "cyber"
+                          ? "border-cyan-400/40 bg-cyan-400/10 shadow-[0_0_20px_rgba(6,182,212,0.1)]"
+                          : "border-white/[0.06] bg-white/[0.02] hover:border-cyan-400/20"
+                      }`}
+                    >
                       <div className="mb-2 h-2 w-full rounded-full bg-gradient-to-r from-cyan-500 to-purple-600" />
                       <p className="text-sm font-medium text-zinc-200">暗夜科技</p>
-                      <p className="text-xs text-zinc-500 mt-1">青紫渐变 · 粒子网格</p>
+                      <p className="text-xs text-zinc-500 mt-1">青紫渐变 · 粒子网格 · 科技感</p>
                     </button>
-                    <button onClick={() => updateDraft({ theme: "frostmoon" })} className={draft.theme === "frostmoon" ? "rounded-xl border border-blue-400/40 bg-blue-400/10 p-3 text-left" : "rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-left hover:border-blue-300/20"}>
-                      <div className="mb-2 h-2 w-full rounded-full bg-gradient-to-r from-[#f7fbff] via-[#a9ddff] to-[#5fa8d6]" />
+
+                    {/* Frost Moon theme */}
+                    <button
+                      onClick={() => updateDraft({ theme: "frostmoon" })}
+                      className={`rounded-xl border p-4 text-left transition-all ${
+                        draft.theme === "frostmoon"
+                          ? "border-[var(--accent-primary)]/40 bg-[var(--accent-glow)] shadow-[0_0_20px_rgba(140,200,212,0.1)]"
+                          : "border-white/[0.06] bg-white/[0.02] hover:border-blue-300/20"
+                      }`}
+                    >
+                      <div className="mb-2 h-2 w-full rounded-full bg-gradient-to-r from-[#c8dff0] via-[#8ec8d4] to-[#9bb4d4]" />
                       <p className="text-sm font-medium text-zinc-200">霜月</p>
-                      <p className="text-xs text-zinc-500 mt-1">深寒夜 · 冰月辉光</p>
-                    </button>
-                    <button onClick={() => updateDraft({ theme: "hengyue" })} className={draft.theme === "hengyue" ? "rounded-xl border border-amber-400/40 bg-amber-400/10 p-3 text-left" : "rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-left hover:border-amber-400/20"}>
-                      <div className="mb-2 h-2 w-full rounded-full bg-gradient-to-r from-[#fff9ec] via-[#ffd56f] to-[#b69ce8]" />
-                      <p className="text-sm font-medium text-zinc-200">恒月</p>
-                      <p className="text-xs text-zinc-500 mt-1">金月光辉 · 鎏金星野</p>
-                    </button>
-                    <button onClick={() => updateDraft({ theme: "hongyue" })} className={draft.theme === "hongyue" ? "rounded-xl border border-red-400/40 bg-red-400/10 p-3 text-left" : "rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-left hover:border-red-400/20"}>
-                      <div className="mb-2 h-2 w-full rounded-full bg-gradient-to-r from-[#ff7869] via-[#ff424f] to-[#d790aa]" />
-                      <p className="text-sm font-medium text-zinc-200">虹月</p>
-                      <p className="text-xs text-zinc-500 mt-1">赤月光辉 · 暗红涌动</p>
+                      <p className="text-xs text-zinc-500 mt-1">清冷月光 · 霜雪粒子 · 东方美学</p>
                     </button>
                   </div>
+                  {draft.theme === "frostmoon" && (
+                    <div className="flex flex-wrap gap-2 text-xs text-zinc-500">
+                      <span className="rounded-full bg-[#c8dff0]/10 px-2 py-0.5">#c8dff0 霜白</span>
+                      <span className="rounded-full bg-[#8ec8d4]/10 px-2 py-0.5">#8ec8d4 霜青</span>
+                      <span className="rounded-full bg-[#7b9ec7]/10 px-2 py-0.5">#7b9ec7 月蓝</span>
+                      <span className="rounded-full bg-[#a8bcd4]/10 px-2 py-0.5">#a8bcd4 银蓝</span>
+                    </div>
+                  )}
+                </div>
+
                 {/* Wallpaper settings */}
                 <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 space-y-4">
                   <h3 className="text-sm font-medium text-zinc-300 flex items-center gap-2">
