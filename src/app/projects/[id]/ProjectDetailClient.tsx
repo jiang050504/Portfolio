@@ -25,8 +25,8 @@ export default function ProjectDetailClient({ id }: Props) {
     return (
       <div className="flex min-h-screen items-center justify-center pt-20">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-zinc-300">项目未找到</h1>
-          <p className="mt-4 text-zinc-500">该项目不存在或已被删除</p>
+          <h1 className="text-4xl font-bold text-[var(--text-secondary)]">项目未找到</h1>
+          <p className="mt-4 text-[var(--text-muted)]">该项目不存在或已被删除</p>
           <Link href="/projects" className="mt-6 inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300">
             <ArrowLeft size={16} /> 返回作品列表
           </Link>
@@ -41,12 +41,12 @@ export default function ProjectDetailClient({ id }: Props) {
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="mx-auto max-w-4xl px-6">
-        <Link href="/projects" className="mb-8 inline-flex items-center gap-2 rounded-lg border border-white/[0.08] px-4 py-2.5 text-base text-zinc-400 transition-colors hover:border-cyan-400/30 hover:text-cyan-400">
+        <Link href="/projects" className="mb-8 inline-flex items-center gap-2 rounded-lg border border-white/[0.08] px-4 py-2.5 text-base text-[var(--text-secondary)] transition-colors hover:border-cyan-400/30 hover:text-cyan-400">
           <ArrowLeft size={18} /> 返回作品列表
         </Link>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h1 className="mb-4 text-3xl font-bold text-zinc-100 sm:text-4xl">{project.title}</h1>
+          <h1 className="mb-4 text-3xl font-bold text-[var(--text-primary)] sm:text-4xl">{project.title}</h1>
           <div className="mb-8 flex flex-wrap gap-2">
             {project.tags.map((tag) => (
               <span key={tag} className="inline-flex items-center gap-1 rounded-full border border-cyan-400/20 bg-cyan-400/5 px-3 py-1.5 text-sm text-cyan-300">
@@ -58,7 +58,7 @@ export default function ProjectDetailClient({ id }: Props) {
           {/* Image Gallery */}
           {images.length > 0 && (
             <div className="mb-8">
-              <h2 className="mb-4 text-lg font-semibold text-zinc-200">项目截图（{images.length} 张）</h2>
+              <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">项目截图（{images.length} 张）</h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {images.map((img, i) => (
                   <div key={i} onClick={() => setFullscreenIdx(i)}
@@ -73,7 +73,7 @@ export default function ProjectDetailClient({ id }: Props) {
           {/* Video Gallery */}
           {videos.length > 0 && (
             <div className="mb-8">
-              <h2 className="mb-4 text-lg font-semibold text-zinc-200">演示视频（{videos.length} 个）</h2>
+              <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">演示视频（{videos.length} 个）</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 {videos.map((vid, i) => (
                   <div key={i} className="overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
@@ -93,8 +93,8 @@ export default function ProjectDetailClient({ id }: Props) {
 
           {/* Detail */}
           <GlowCard className="mb-8">
-            <h2 className="mb-4 text-lg font-semibold text-zinc-200">项目介绍</h2>
-            <p className="leading-relaxed text-zinc-400 whitespace-pre-line">
+            <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">项目介绍</h2>
+            <p className="leading-relaxed text-[var(--text-secondary)] whitespace-pre-line">
               {project.detail || project.description}
             </p>
           </GlowCard>
@@ -110,7 +110,7 @@ export default function ProjectDetailClient({ id }: Props) {
             )}
             {project.github && (
               <a href={project.github} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-6 py-3 text-sm font-medium text-zinc-300 backdrop-blur-sm transition-all hover:border-cyan-500/30 hover:bg-white/[0.06]">
+                className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-6 py-3 text-sm font-medium text-[var(--text-secondary)] backdrop-blur-sm transition-all hover:border-cyan-500/30 hover:bg-white/[0.06]">
                 <Globe size={16} /> 查看源码
               </a>
             )}

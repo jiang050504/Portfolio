@@ -71,7 +71,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mb-8 flex items-center justify-center gap-1 text-xl text-zinc-400 sm:text-2xl"
+          className="mb-8 flex items-center justify-center gap-1 text-xl text-[var(--text-secondary)] sm:text-2xl"
         >
           <span>一名</span>
           <span className="font-semibold text-cyan-400 min-w-[8ch] text-left">
@@ -85,7 +85,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.45 }}
-          className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-zinc-400"
+          className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-[var(--text-secondary)]"
         >
           {heroDescription}
         </motion.p>
@@ -128,7 +128,7 @@ export default function Hero() {
           transition={{ delay: 1.2 }}
           className="absolute bottom-10 left-1/2 -translate-x-1/2"
         >
-          <ChevronDown size={24} className="animate-bounce text-zinc-600" />
+          <ChevronDown size={24} className="animate-bounce text-[var(--text-muted)]" />
         </motion.div>
       </div>
     </section>

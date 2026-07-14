@@ -118,19 +118,19 @@ export default function ProjectCard({
       </div>
 
       {/* Title */}
-      <h3 className="relative z-10 mb-2 text-lg font-semibold text-zinc-100 transition-colors group-hover/title:text-cyan-400">
+      <h3 className="relative z-10 mb-2 text-lg font-semibold text-[var(--text-primary)] transition-colors group-hover/title:text-cyan-400">
         {title}
       </h3>
 
       {/* Description */}
-      <p className="relative z-10 mb-4 text-sm leading-relaxed text-zinc-400 line-clamp-2">
+      <p className="relative z-10 mb-4 text-sm leading-relaxed text-[var(--text-secondary)] line-clamp-2">
         {description}
       </p>
 
       {/* Tags */}
       <div className="relative z-10 mb-4 flex flex-wrap gap-2 pointer-events-none">
         {tags.map((tag) => (
-          <span key={tag} className="rounded-full border border-white/[0.06] bg-white/[0.02] px-3 py-1 text-xs text-zinc-400">
+          <span key={tag} className="rounded-full border border-white/[0.06] bg-white/[0.02] px-3 py-1 text-xs text-[var(--text-secondary)]">
             {tag}
           </span>
         ))}
@@ -140,13 +140,13 @@ export default function ProjectCard({
       <div className="relative z-20 flex gap-3">
         {github && (
           <a href={github} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-cyan-400">
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--text-secondary)] transition-colors hover:text-cyan-400">
             <Globe size={14} /> 源码
           </a>
         )}
         {demo && (
           <a href={demo} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-purple-400">
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--text-secondary)] transition-colors hover:text-purple-400">
             <ExternalLink size={14} /> 演示
           </a>
         )}

@@ -38,12 +38,12 @@ export default function BioCard({ delay = 0 }: BioCardProps) {
           )}
         </div>
         <div>
-          <h3 className="text-xl font-bold text-zinc-100">{aboutName}</h3>
+          <h3 className="text-xl font-bold text-[var(--text-primary)]">{aboutName}</h3>
           <p className="text-sm text-cyan-400">{aboutRole}</p>
         </div>
       </div>
 
-      <div className="space-y-4 text-sm leading-relaxed text-zinc-400">
+      <div className="space-y-4 text-sm leading-relaxed text-[var(--text-secondary)]">
         {aboutBio.map((paragraph, i) => (
           <p key={i}>{paragraph}</p>
         ))}
@@ -56,8 +56,8 @@ export default function BioCard({ delay = 0 }: BioCardProps) {
             key={item.label}
             className="rounded-lg border border-white/[0.04] bg-white/[0.02] px-3 py-2"
           >
-            <span className="text-zinc-500">{item.label}</span>
-            <p className="mt-0.5 font-medium text-zinc-300">{item.value}</p>
+            <span className="text-[var(--text-muted)]">{item.label}</span>
+            <p className="mt-0.5 font-medium text-[var(--text-secondary)]">{item.value}</p>
           </div>
         ))}
       </div>

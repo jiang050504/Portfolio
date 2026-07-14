@@ -42,7 +42,7 @@ export default function Navbar() {
                 className={`relative rounded-lg px-5 py-2.5 text-base font-medium transition-colors ${
                   isActive
                     ? "text-cyan-400"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 {link.label}
@@ -61,7 +61,7 @@ export default function Navbar() {
         {/* Mobile menu button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="rounded-lg p-2 text-zinc-400 transition-colors hover:text-zinc-200 sm:hidden"
+          className="rounded-lg p-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)] sm:hidden"
           aria-label="切换菜单"
         >
           {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -88,7 +88,7 @@ export default function Navbar() {
                     className={`rounded-lg px-5 py-3 text-base font-medium transition-colors ${
                       isActive
                         ? "bg-cyan-400/10 text-cyan-400"
-                        : "text-zinc-400 hover:bg-white/[0.03] hover:text-zinc-200"
+                        : "text-[var(--text-secondary)] hover:bg-white/[0.03] hover:text-[var(--text-primary)]"
                     }`}
                   >
                     {link.label}

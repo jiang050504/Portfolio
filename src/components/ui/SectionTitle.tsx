@@ -22,7 +22,7 @@ export default function SectionTitle({ title, subtitle }: SectionTitleProps) {
         </span>
       </h2>
       {subtitle && (
-        <p className="mt-3 text-zinc-400 text-lg">{subtitle}</p>
+        <p className="mt-3 text-[var(--text-secondary)] text-lg">{subtitle}</p>
       )}
       <div className="mx-auto mt-4 h-px w-20 bg-gradient-to-r from-cyan-400 to-purple-500" />
     </motion.div>

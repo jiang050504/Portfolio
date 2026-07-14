@@ -17,7 +17,7 @@ export default function SkillsGrid() {
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: catIdx * 0.15 }}
         >
-          <h3 className="mb-4 flex items-center gap-3 text-lg font-semibold text-zinc-200">
+          <h3 className="mb-4 flex items-center gap-3 text-lg font-semibold text-[var(--text-primary)]">
             <span className="h-px w-6 bg-gradient-to-r from-cyan-400 to-transparent" />
             {category.title}
           </h3>

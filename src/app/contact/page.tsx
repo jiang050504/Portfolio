@@ -56,8 +56,8 @@ export default function ContactPage() {
                   <Icon size={20} />
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">{contact.label}</p>
-                  <p className="text-sm font-medium text-zinc-300 transition-colors group-hover:text-zinc-100">
+                  <p className="text-xs text-[var(--text-muted)]">{contact.label}</p>
+                  <p className="text-sm font-medium text-[var(--text-secondary)] transition-colors group-hover:text-[var(--text-primary)]">
                     {contact.value}
                   </p>
                 </div>
@@ -80,10 +80,10 @@ export default function ContactPage() {
                 <MapPin size={20} />
               </div>
               <div>
-                <h3 className="font-semibold text-zinc-200">
+                <h3 className="font-semibold text-[var(--text-primary)]">
                   {contactStatusTitle}
                 </h3>
-                <p className="mt-1 text-sm text-zinc-400">
+                <p className="mt-1 text-sm text-[var(--text-secondary)]">
                   {contactStatusText}
                 </p>
               </div>
