@@ -61,7 +61,10 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.15 }}
           className="mb-6 text-5xl font-bold tracking-tight sm:text-7xl"
         >
-          <span className="bg-gradient-to-r [--hue1:var(--accent-secondary)] [--hue2:var(--accent-primary)] bg-clip-text text-transparent">
+          <span
+            className="bg-clip-text text-transparent"
+            style={{ backgroundImage: "var(--gradient-hero)" }}
+          >
             {heroName}
           </span>
         </motion.h1>

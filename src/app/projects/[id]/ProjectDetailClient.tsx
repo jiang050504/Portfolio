@@ -83,7 +83,14 @@ export default function ProjectDetailClient({ id }: Props) {
                     ) : vid.includes("bilibili.com") ? (
                       <iframe src={vid} className="aspect-video w-full" allowFullScreen title={`视频 ${i + 1}`} />
                     ) : (
-                      <video src={asset(vid)} controls className="w-full max-h-[60vh] object-contain bg-black rounded-lg" />
+                      <video
+                        src={asset(vid)}
+                        controls
+                        controlsList="nodownload noplaybackrate noremoteplayback"
+                        disablePictureInPicture
+                        onContextMenu={(e) => e.preventDefault()}
+                        className="w-full max-h-[60vh] object-contain bg-black rounded-lg"
+                      />
                     )}
                   </div>
                 ))}

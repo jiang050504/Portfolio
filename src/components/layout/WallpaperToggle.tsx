@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useContent } from "@/context/ContentContext";
 import { Sparkles, Moon, Sun, Flame } from "lucide-react";
@@ -14,10 +15,33 @@ const themes = [
 export default function ThemeSwitcher() {
   const { content, updateContent } = useContent();
   const current = themes.findIndex((t) => t.id === content.theme);
+  const contentRef = useRef(content);
+
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+
+  // Rotate to a different theme every minute, so the four built-in wallpapers
+  // are shown in a random order without immediately repeating the current one.
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      const latest = contentRef.current;
+      const availableThemes = themes.filter((theme) => theme.id !== latest.theme);
+      const nextTheme = availableThemes[Math.floor(Math.random() * availableThemes.length)];
+
+      updateContent({
+        ...latest,
+        theme: nextTheme.id,
+        wallpaperEnabled: true,
+      });
+    }, 60_000);
+
+    return () => window.clearInterval(timer);
+  }, [updateContent]);
 
   const next = () => {
     const n = (current + 1) % themes.length;
-    updateContent({ ...content, theme: themes[n].id, wallpaperEnabled: n > 0 });
+    updateContent({ ...content, theme: themes[n].id, wallpaperEnabled: true });
   };
 
   const t = themes[current] || themes[0];

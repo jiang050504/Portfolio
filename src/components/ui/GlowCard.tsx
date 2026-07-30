@@ -26,7 +26,7 @@ export default function GlowCard({
         hover:before:opacity-100
         ${className}`}
         style={{
-          borderColor: 'var(--border-card)',
+          borderColor: 'color-mix(in srgb, var(--accent-primary) 45%, transparent)',
           background: 'var(--bg-card)',
         }}
         onMouseEnter={(e) => {
@@ -34,7 +34,7 @@ export default function GlowCard({
           e.currentTarget.style.boxShadow = '0 0 30px var(--accent-glow)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = 'var(--border-card)';
+          e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--accent-primary) 45%, transparent)';
           e.currentTarget.style.boxShadow = 'none';
         }}
     >

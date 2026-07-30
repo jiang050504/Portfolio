@@ -6,6 +6,7 @@ import { asset } from "@/lib/path";
 
 // Theme default wallpapers
 const DEFAULT_WALLPAPERS: Record<string, string> = {
+  cyber: "/wallpapers/恒月2.png",
   frostmoon: "/wallpapers/霜月.png",
   hengyue: "/wallpapers/恒月.png",
   hongyue: "/wallpapers/虹月.png",
@@ -106,7 +107,7 @@ export default function Background() {
   useEmbers(canvasRef, theme==="hongyue" && showParticles);
 
   // Use theme default wallpaper if none set
-  const displayWallpaper = wallpaperPath || (theme !== "cyber" ? DEFAULT_WALLPAPERS[theme] || "" : "");
+  const displayWallpaper = wallpaperPath || DEFAULT_WALLPAPERS[theme] || "";
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0">

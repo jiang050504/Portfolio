@@ -61,6 +61,9 @@ export default function ProjectCard({
             src={allVideos[0]}
             className="h-full w-full object-contain"
             muted loop playsInline autoPlay
+            controlsList="nodownload noplaybackrate noremoteplayback"
+            disablePictureInPicture
+            onContextMenu={(e) => e.preventDefault()}
           />
         ) : currentImage ? (
           <img

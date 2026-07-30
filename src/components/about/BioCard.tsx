@@ -18,9 +18,13 @@ export default function BioCard({ delay = 0 }: BioCardProps) {
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
-      className="relative rounded-xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-sm p-8
+      className="relative rounded-xl border-2 bg-white/[0.03] backdrop-blur-sm p-8
         before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-b before:from-cyan-500/5 before:to-purple-500/5 before:opacity-0 before:transition-opacity before:duration-300
         hover:before:opacity-100 hover:border-cyan-500/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.08)]"
+      style={{
+        borderColor: "color-mix(in srgb, var(--accent-primary) 72%, transparent)",
+        boxShadow: "0 0 26px var(--accent-glow), inset 0 0 24px var(--accent-glow)",
+      }}
     >
       {/* Avatar */}
       <div className="mb-6 flex items-center gap-5">
@@ -54,7 +58,8 @@ export default function BioCard({ delay = 0 }: BioCardProps) {
         {aboutQuickInfo.map((item) => (
           <div
             key={item.label}
-            className="rounded-lg border border-white/[0.04] bg-white/[0.02] px-3 py-2"
+            className="rounded-lg border bg-white/[0.02] px-3 py-2"
+            style={{ borderColor: "color-mix(in srgb, var(--accent-primary) 34%, transparent)" }}
           >
             <span className="text-[var(--text-muted)]">{item.label}</span>
             <p className="mt-0.5 font-medium text-[var(--text-secondary)]">{item.value}</p>

@@ -16,6 +16,11 @@ export default function SkillsGrid() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: catIdx * 0.15 }}
+          className="rounded-xl border bg-[var(--bg-card)] p-5 backdrop-blur-sm"
+          style={{
+            borderColor: "color-mix(in srgb, var(--accent-primary) 56%, transparent)",
+            boxShadow: "0 0 18px var(--accent-glow)",
+          }}
         >
           <h3 className="mb-4 flex items-center gap-3 text-lg font-semibold text-[var(--text-primary)]">
             <span className="h-px w-6 bg-gradient-to-r from-cyan-400 to-transparent" />
