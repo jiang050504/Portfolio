@@ -35,16 +35,7 @@ type TabKey =
   | "wallpaper";
 
 function createProjectMediaFolder(title: string, index: number) {
-  const projectNumber = String(index + 1).padStart(2, "0");
-  const safeTitle = title
-    .trim()
-    .replace(/[\\/:*?"<>|]+/g, "-")
-    .replace(/\s+/g, "-")
-    .replace(/[^\p{L}\p{N}._-]/gu, "")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-
-  return `${projectNumber}-${safeTitle || "new-project"}`;
+  return normalizeProjectSlug(title) || `project-${index + 1}`;
 }
 
 function normalizeProjectSlug(value: string) {
@@ -213,11 +204,11 @@ function FileUpload({
         formData.append("dir", dir);
         if (projectFolder) formData.append("projectFolder", projectFolder);
         const res = await fetch("/api/upload", { method: "POST", body: formData });
-        const data = await res.json();
-        if (data.success) {
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
           onUploaded(data.path);
         } else {
-          setError(data.error || "上传失败");
+          setError(data.error || `上传失败（${res.status}）`);
         }
       } catch {
         setError("网络错误，请重试");
@@ -254,6 +245,7 @@ function FileUpload({
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) doUpload(f);
+              e.currentTarget.value = "";
             }}
           />
           {uploading ? (
@@ -298,9 +290,22 @@ function ProjectEditor({
   onChange: (p: Project) => void;
   onDelete: () => void;
 }) {
-  const mediaFolder = project.mediaFolder || createProjectMediaFolder(project.title, projectIndex);
-  const updateProject = (changes: Partial<Project>) =>
-    onChange({ ...project, ...changes, mediaFolder });
+  const projectSlug =
+    normalizeProjectSlug(project.slug || "") ||
+    normalizeProjectSlug(project.mediaFolder || "") ||
+    `project-${projectIndex + 1}`;
+  const mediaFolder = projectSlug;
+  const updateProject = (changes: Partial<Project>) => {
+    const nextSlug = changes.slug === undefined
+      ? projectSlug
+      : normalizeProjectSlug(changes.slug || "");
+    onChange({
+      ...project,
+      ...changes,
+      slug: changes.slug === undefined ? projectSlug : (nextSlug || projectSlug),
+      mediaFolder: nextSlug || projectSlug,
+    });
+  };
 
   return (
     <div className="relative space-y-3 rounded-xl border border-white/[0.14] bg-black/35 p-4 shadow-[0_12px_30px_rgba(0,0,0,.18)] backdrop-blur-md">
@@ -370,7 +375,7 @@ function ProjectEditor({
             <span className="text-purple-400">画面截图（{project.images?.length || 0} 张）</span>
           </span>
           <button
-            onClick={() => onChange({ ...project, images: [...(project.images || []), ""] })}
+            onClick={() => updateProject({ images: [...(project.images || []), ""] })}
             className="inline-flex items-center gap-1 rounded-lg border border-dashed border-cyan-400/30 px-2 py-1 text-xs text-cyan-400 transition-colors hover:bg-cyan-400/5"
           >
             <Plus size={12} /> 添加图片
@@ -403,7 +408,7 @@ function ProjectEditor({
             <span className="text-amber-400">角色与场景设计（{project.designImages?.length || 0} 张）</span>
           </span>
           <button
-            onClick={() => onChange({ ...project, designImages: [...(project.designImages || []), ""] })}
+            onClick={() => updateProject({ designImages: [...(project.designImages || []), ""] })}
             className="inline-flex items-center gap-1 rounded-lg border border-dashed border-amber-400/30 px-2 py-1 text-xs text-amber-400 transition-colors hover:bg-amber-400/5"
           >
             <Plus size={12} /> 添加图片
@@ -436,7 +441,7 @@ function ProjectEditor({
             <span className="text-purple-400">演示视频（{project.videos?.length || 0} 个）</span>
           </span>
           <button
-            onClick={() => onChange({ ...project, videos: [...(project.videos || []), ""] })}
+            onClick={() => updateProject({ videos: [...(project.videos || []), ""] })}
             className="inline-flex items-center gap-1 rounded-lg border border-dashed border-purple-400/30 px-2 py-1 text-xs text-purple-400 transition-colors hover:bg-purple-400/5"
           >
             <Plus size={12} /> 添加视频
@@ -572,9 +577,13 @@ export default function AdminPage() {
     }
   };
 
-  const handleSetCurrentAsDefault = () => {
-    setDefaultContent(draft);
-    alert("当前整站内容已设为默认。以后点击“恢复默认”会回到这一版。");
+  const handleSetCurrentAsDefault = async () => {
+    const writtenToSource = await setDefaultContent(draft);
+    alert(
+      writtenToSource
+        ? "当前整站内容已写入本地源码并设为默认。"
+        : "当前内容已保存为浏览器默认值，但源码写入失败；请在本地开发环境操作。"
+    );
   };
 
   const updateDraft = (partial: Partial<SiteContent>) => {
@@ -823,7 +832,7 @@ export default function AdminPage() {
                         onClick={() => {
                           const newIndex = draft.projects.length;
                           updateDraft({
-                            projects: [...draft.projects, { title: "新项目", description: "", detail: "", tags: [], github: "", demo: "", slug: `project-${newIndex + 1}`, mediaFolder: createProjectMediaFolder("new-project", newIndex), coverImage: "", coverPosition: "center", images: [], videos: [], designImages: [] }],
+                            projects: [...draft.projects, { title: "新项目", description: "", detail: "", tags: [], github: "", demo: "", slug: `project-${newIndex + 1}`, mediaFolder: `project-${newIndex + 1}`, coverImage: "", coverPosition: "center", images: [], videos: [], designImages: [] }],
                           });
                           setSelectedProjectIndex(newIndex);
                         }}

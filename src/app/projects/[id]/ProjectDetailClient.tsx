@@ -93,6 +93,10 @@ export default function ProjectDetailClient({ projectId }: Props) {
     () => project?.designImages?.filter(Boolean) || [],
     [project?.designImages]
   );
+  const projectImages = useMemo(
+    () => project?.images?.filter(Boolean) || [],
+    [project?.images]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -123,27 +127,58 @@ export default function ProjectDetailClient({ projectId }: Props) {
     let cancelled = false;
 
     const detectLandscapeDesigns = async () => {
+      const sideCandidates = [
+        ...designImages.map((path) => ({ path, isDesign: true })),
+        ...projectImages
+          .filter((path) => path !== projectCoverImage)
+          .map((path) => ({ path, isDesign: false })),
+      ].filter(
+        (candidate, index, candidates) =>
+          candidates.findIndex((item) => item.path === candidate.path) === index
+      );
+
       const candidates = await Promise.all(
-        designImages.map(
-          (imagePath) =>
-            new Promise<{ path: string; isLandscape: boolean } | null>((resolve) => {
+        sideCandidates.map(
+          (candidate) =>
+            new Promise<{ path: string; isLandscape: boolean; isDesign: boolean } | null>((resolve) => {
               const image = new Image();
               image.onload = () =>
-                resolve({ path: imagePath, isLandscape: image.naturalWidth >= image.naturalHeight });
+                resolve({
+                  ...candidate,
+                  isLandscape: image.naturalWidth >= image.naturalHeight,
+                });
               image.onerror = () => resolve(null);
-              image.src = asset(imagePath);
+              image.src = asset(candidate.path);
             })
         )
       );
 
       if (cancelled) return;
       const resolved = candidates.filter(
-        (candidate): candidate is { path: string; isLandscape: boolean } => Boolean(candidate)
+        (candidate): candidate is { path: string; isLandscape: boolean; isDesign: boolean } =>
+          Boolean(candidate)
       );
-      const landscapes = resolved.filter((candidate) => candidate.isLandscape).map((candidate) => candidate.path);
-      const portraits = resolved.filter((candidate) => !candidate.isLandscape).map((candidate) => candidate.path);
-      const shuffled = [...landscapes].sort(() => Math.random() - 0.5);
-      setFeaturedLandscapeDesigns(shuffled.slice(0, 2));
+      const resolvedDesigns = resolved.filter((candidate) => candidate.isDesign);
+      const landscapes = resolvedDesigns
+        .filter((candidate) => candidate.isLandscape)
+        .map((candidate) => candidate.path);
+      const portraits = resolvedDesigns
+        .filter((candidate) => !candidate.isLandscape)
+        .map((candidate) => candidate.path);
+      const preferred = resolved
+        .filter((candidate) => candidate.isDesign && candidate.isLandscape)
+        .sort(() => Math.random() - 0.5);
+      const fallbackLandscapes = resolved
+        .filter((candidate) => !candidate.isDesign && candidate.isLandscape)
+        .sort(() => Math.random() - 0.5);
+      const fallbackPortraits = resolved
+        .filter((candidate) => !candidate.isLandscape)
+        .sort((left, right) => Number(right.isDesign) - Number(left.isDesign));
+      setFeaturedLandscapeDesigns(
+        [...preferred, ...fallbackLandscapes, ...fallbackPortraits]
+          .slice(0, 2)
+          .map((candidate) => candidate.path)
+      );
       setLandscapeDesignImages(landscapes);
       setPortraitDesignImages(portraits);
     };
@@ -152,7 +187,7 @@ export default function ProjectDetailClient({ projectId }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [designImages]);
+  }, [designImages, projectCoverImage, projectImages]);
 
   if (!project) {
     return (
@@ -263,7 +298,7 @@ export default function ProjectDetailClient({ projectId }: Props) {
                             <img
                               src={asset(imagePath)}
                               alt={`${project.title} 角色与场景设计 ${index + 1}`}
-                              className="h-full w-full object-cover"
+                              className="h-full w-full object-contain"
                               draggable={false}
                               onContextMenu={(event) => event.preventDefault()}
                             />

@@ -16,8 +16,6 @@ import {
 
 const STORAGE_KEY = "portfolio-content";
 const DEFAULT_SNAPSHOT_KEY = "portfolio-default-content";
-const CONTENT_VERSION_KEY = "portfolio-content-version";
-const CONTENT_VERSION = "2026-08-02-complete-media-v1";
 
 function mergeProject(defaultProject: Project, savedProject?: Partial<Project>): Project {
   if (!savedProject) return defaultProject;
@@ -31,7 +29,7 @@ function mergeProject(defaultProject: Project, savedProject?: Partial<Project>):
   const hasNoSavedDesignImages =
     !Array.isArray(savedProject.designImages) || savedProject.designImages.length === 0;
 
-  return {
+  const mergedProject: Project = {
     ...defaultProject,
     ...savedProject,
     ...(usesLegacyMediaLayout
@@ -43,20 +41,66 @@ function mergeProject(defaultProject: Project, savedProject?: Partial<Project>):
         ? { designImages: defaultProject.designImages }
         : {}),
   };
+
+  const savedSlug = mergedProject.slug || "";
+  const slug = (!savedSlug || /^project-\d+$/.test(savedSlug)) && defaultProject.slug
+    ? defaultProject.slug
+    : savedSlug || defaultProject.slug || "";
+  const moveMediaToSlug = (path: string | undefined) => {
+    if (!path || !slug || !path.startsWith("/projects/")) return path || "";
+    const filename = path.split("/").pop();
+    return filename ? `/projects/${slug}/${filename}` : "";
+  };
+
+  const normalizedProject: Project = {
+    ...mergedProject,
+    mediaFolder: slug || mergedProject.mediaFolder,
+    coverImage: moveMediaToSlug(mergedProject.coverImage),
+    images: (mergedProject.images || []).map(moveMediaToSlug).filter(Boolean),
+    videos: (mergedProject.videos || []).map(moveMediaToSlug).filter(Boolean),
+    designImages: (mergedProject.designImages || []).map(moveMediaToSlug).filter(Boolean),
+  };
+
+  // Repair the two projects whose media were previously split or associated
+  // with the wrong backend project. The source defaults are the canonical list.
+  if (slug === "kaiju-tianzai") {
+    normalizedProject.designImages = defaultProject.designImages;
+  }
+  if (slug === "jiubuaiwodema") {
+    normalizedProject.images = defaultProject.images;
+    normalizedProject.videos = defaultProject.videos;
+    normalizedProject.designImages = defaultProject.designImages;
+  }
+
+  return normalizedProject;
 }
 
 function mergeSavedContent(saved: Partial<SiteContent>): SiteContent {
   const savedProjects = Array.isArray(saved.projects) ? saved.projects : [];
+  const seenProjectSlugs = new Set<string>();
+
+  const mergedProjects = savedProjects.flatMap((savedProject) => {
+    const matchingDefault = defaultContent.projects.find((project) =>
+      (savedProject.slug && project.slug === savedProject.slug) ||
+      project.title === savedProject.title
+    );
+
+    const mergedProject = matchingDefault
+      ? mergeProject(matchingDefault, savedProject)
+      : savedProject as Project;
+    const projectSlug = mergedProject.slug || "";
+
+    if (projectSlug && seenProjectSlugs.has(projectSlug)) return [];
+    if (projectSlug) seenProjectSlugs.add(projectSlug);
+    return [mergedProject];
+  });
 
   return {
     ...defaultContent,
     ...saved,
-    projects: [
-      ...defaultContent.projects.map((project, index) =>
-        mergeProject(project, savedProjects[index])
-      ),
-      ...savedProjects.slice(defaultContent.projects.length),
-    ],
+    projects: savedProjects.length
+      ? mergedProjects
+      : defaultContent.projects,
   };
 }
 
@@ -64,14 +108,14 @@ interface ContentContextType {
   content: SiteContent;
   updateContent: (newContent: SiteContent) => void;
   resetContent: () => SiteContent;
-  setDefaultContent: (newContent: SiteContent) => void;
+  setDefaultContent: (newContent: SiteContent) => Promise<boolean>;
 }
 
 const ContentContext = createContext<ContentContextType>({
   content: defaultContent,
   updateContent: () => {},
   resetContent: () => defaultContent,
-  setDefaultContent: () => {},
+  setDefaultContent: async () => false,
 });
 
 export function ContentProvider({ children }: { children: ReactNode }) {
@@ -81,18 +125,6 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   // Load from localStorage on mount
   useEffect(() => {
     try {
-      // A deployed content update must take precedence over stale browser data.
-      // Once migrated, later admin edits continue to persist normally.
-      const savedVersion = localStorage.getItem(CONTENT_VERSION_KEY);
-      if (savedVersion !== CONTENT_VERSION) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultContent));
-        localStorage.setItem(DEFAULT_SNAPSHOT_KEY, JSON.stringify(defaultContent));
-        localStorage.setItem(CONTENT_VERSION_KEY, CONTENT_VERSION);
-        setContent(defaultContent);
-        setMounted(true);
-        return;
-      }
-
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved) as Partial<SiteContent>;
@@ -141,11 +173,23 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const setDefaultContent = useCallback((newContent: SiteContent) => {
+  const setDefaultContent = useCallback(async (newContent: SiteContent) => {
+    const normalizedContent = mergeSavedContent(newContent);
     try {
-      localStorage.setItem(DEFAULT_SNAPSHOT_KEY, JSON.stringify(newContent));
+      localStorage.setItem(DEFAULT_SNAPSHOT_KEY, JSON.stringify(normalizedContent));
     } catch {
       // localStorage might be full
+    }
+
+    try {
+      const response = await fetch("/api/content-default", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(normalizedContent),
+      });
+      return response.ok;
+    } catch {
+      return false;
     }
   }, []);
 
