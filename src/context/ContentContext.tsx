@@ -9,22 +9,67 @@ import {
   type ReactNode,
 } from "react";
 import {
+  type Project,
   type SiteContent,
   defaultContent,
 } from "@/data/defaults";
 
 const STORAGE_KEY = "portfolio-content";
+const DEFAULT_SNAPSHOT_KEY = "portfolio-default-content";
+
+function mergeProject(defaultProject: Project, savedProject?: Partial<Project>): Project {
+  if (!savedProject) return defaultProject;
+
+  // Older browser data predates the dedicated cover/design fields. Keep the
+  // user's existing content, while filling the fields introduced afterwards.
+  const usesLegacyMediaLayout =
+    !Object.prototype.hasOwnProperty.call(savedProject, "coverImage") &&
+    !Object.prototype.hasOwnProperty.call(savedProject, "designImages");
+
+  const hasNoSavedDesignImages =
+    !Array.isArray(savedProject.designImages) || savedProject.designImages.length === 0;
+
+  return {
+    ...defaultProject,
+    ...savedProject,
+    ...(usesLegacyMediaLayout
+      ? {
+          coverImage: defaultProject.coverImage,
+          designImages: defaultProject.designImages,
+        }
+      : hasNoSavedDesignImages && defaultProject.designImages?.length
+        ? { designImages: defaultProject.designImages }
+        : {}),
+  };
+}
+
+function mergeSavedContent(saved: Partial<SiteContent>): SiteContent {
+  const savedProjects = Array.isArray(saved.projects) ? saved.projects : [];
+
+  return {
+    ...defaultContent,
+    ...saved,
+    projects: [
+      ...defaultContent.projects.map((project, index) =>
+        mergeProject(project, savedProjects[index])
+      ),
+      ...savedProjects.slice(defaultContent.projects.length),
+    ],
+  };
+}
 
 interface ContentContextType {
   content: SiteContent;
   updateContent: (newContent: SiteContent) => void;
-  resetContent: () => void;
+  resetContent: () => SiteContent;
+  setDefaultContent: (newContent: SiteContent) => void;
 }
 
 const ContentContext = createContext<ContentContextType>({
   content: defaultContent,
   updateContent: () => {},
-  resetContent: () => {},
+  resetContent: () => defaultContent,
+  setDefaultContent: () => {},
 });
 
 export function ContentProvider({ children }: { children: ReactNode }) {
@@ -36,9 +81,20 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        // Merge with defaults to handle new fields
-        setContent({ ...defaultContent, ...parsed });
+        const parsed = JSON.parse(saved) as Partial<SiteContent>;
+        const currentContent = mergeSavedContent(parsed);
+        setContent(currentContent);
+
+        // The first run after this feature is introduced preserves the user's
+        // entire existing local site as their restore-default baseline.
+        if (!localStorage.getItem(DEFAULT_SNAPSHOT_KEY)) {
+          localStorage.setItem(DEFAULT_SNAPSHOT_KEY, JSON.stringify(currentContent));
+        }
+      } else {
+        const savedDefault = localStorage.getItem(DEFAULT_SNAPSHOT_KEY);
+        if (savedDefault) {
+          setContent(mergeSavedContent(JSON.parse(savedDefault) as Partial<SiteContent>));
+        }
       }
     } catch {
       // If parse fails, use defaults
@@ -56,8 +112,27 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const resetContent = useCallback(() => {
-    setContent(defaultContent);
-    localStorage.removeItem(STORAGE_KEY);
+    try {
+      const savedDefault = localStorage.getItem(DEFAULT_SNAPSHOT_KEY);
+      const restoredContent = savedDefault
+        ? mergeSavedContent(JSON.parse(savedDefault) as Partial<SiteContent>)
+        : defaultContent;
+
+      setContent(restoredContent);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(restoredContent));
+      return restoredContent;
+    } catch {
+      setContent(defaultContent);
+      return defaultContent;
+    }
+  }, []);
+
+  const setDefaultContent = useCallback((newContent: SiteContent) => {
+    try {
+      localStorage.setItem(DEFAULT_SNAPSHOT_KEY, JSON.stringify(newContent));
+    } catch {
+      // localStorage might be full
+    }
   }, []);
 
   // Don't render children until mounted to avoid hydration mismatch
@@ -66,7 +141,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <ContentContext.Provider value={{ content, updateContent, resetContent }}>
+    <ContentContext.Provider value={{ content, updateContent, resetContent, setDefaultContent }}>
       {children}
     </ContentContext.Provider>
   );

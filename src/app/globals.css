@@ -169,6 +169,11 @@ body {
   transition: background 0.8s ease, color 0.8s ease;
 }
 
+@keyframes loading-scan {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(220%); }
+}
+
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-deep); }
 ::-webkit-scrollbar-thumb {

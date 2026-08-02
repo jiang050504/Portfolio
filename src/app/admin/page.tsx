@@ -5,11 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useContent } from "@/context/ContentContext";
 import type { SiteContent, Project, Experience } from "@/data/defaults";
-import { defaultContent } from "@/data/defaults";
 import { asset } from "@/lib/path";
 import AuthGate from "@/components/admin/AuthGate";
 import {
   ArrowLeft,
+  ArrowUp,
+  ArrowDown,
   Save,
   Undo2,
   Plus,
@@ -21,6 +22,7 @@ import {
   X,
   Layers,
   Key,
+  Bookmark,
 } from "lucide-react";
 
 type TabKey =
@@ -32,6 +34,30 @@ type TabKey =
   | "contact"
   | "wallpaper";
 
+function createProjectMediaFolder(title: string, index: number) {
+  const projectNumber = String(index + 1).padStart(2, "0");
+  const safeTitle = title
+    .trim()
+    .replace(/[\\/:*?"<>|]+/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/[^\p{L}\p{N}._-]/gu, "")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+
+  return `${projectNumber}-${safeTitle || "new-project"}`;
+}
+
+function normalizeProjectSlug(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+}
+
 const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: "hero", label: "首页", icon: null },
   { key: "about", label: "关于我", icon: null },
@@ -40,6 +66,18 @@ const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: "experience", label: "经历", icon: null },
   { key: "contact", label: "联系", icon: null },
   { key: "wallpaper", label: "壁纸", icon: <Layers size={14} /> },
+];
+
+const COVER_POSITION_OPTIONS = [
+  { value: "left top", label: "↖", title: "左上" },
+  { value: "center top", label: "↑", title: "上方" },
+  { value: "right top", label: "↗", title: "右上" },
+  { value: "left center", label: "←", title: "左侧" },
+  { value: "center", label: "•", title: "居中" },
+  { value: "right center", label: "→", title: "右侧" },
+  { value: "left bottom", label: "↙", title: "左下" },
+  { value: "center bottom", label: "↓", title: "下方" },
+  { value: "right bottom", label: "↘", title: "右下" },
 ];
 
 // ======================= Shared form components =======================
@@ -57,7 +95,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className={`mb-1.5 block text-sm font-medium ${color || "text-zinc-400"}`}>
+      <span className={`mb-1.5 block text-sm font-semibold ${color || "text-zinc-200"}`}>
         {label}
         {hint && <span className="ml-1 text-xs text-zinc-600">({hint})</span>}
       </span>
@@ -83,7 +121,7 @@ function Input({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition-colors focus:border-cyan-500/40 focus:bg-white/[0.05]"
+      className="w-full rounded-lg border border-white/[0.16] bg-[#070b14]/85 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] outline-none backdrop-blur-md transition-colors focus:border-cyan-400/70 focus:bg-[#090f1d]/95"
     />
   );
 }
@@ -105,7 +143,7 @@ function Textarea({
       onChange={(e) => onChange(e.target.value)}
       rows={rows}
       placeholder={placeholder}
-      className="w-full resize-none rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition-colors focus:border-cyan-500/40 focus:bg-white/[0.05]"
+      className="w-full resize-none rounded-lg border border-white/[0.16] bg-[#070b14]/85 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] outline-none backdrop-blur-md transition-colors focus:border-cyan-400/70 focus:bg-[#090f1d]/95"
     />
   );
 }
@@ -146,6 +184,7 @@ function Slider({
 function FileUpload({
   label,
   dir,
+  projectFolder,
   currentPath,
   onUploaded,
   accept = "image/*",
@@ -153,6 +192,7 @@ function FileUpload({
 }: {
   label: string;
   dir: "projects" | "avatar" | "wallpapers";
+  projectFolder?: string;
   currentPath: string;
   onUploaded: (path: string) => void;
   accept?: string;
@@ -171,6 +211,7 @@ function FileUpload({
         const formData = new FormData();
         formData.append("file", file);
         formData.append("dir", dir);
+        if (projectFolder) formData.append("projectFolder", projectFolder);
         const res = await fetch("/api/upload", { method: "POST", body: formData });
         const data = await res.json();
         if (data.success) {
@@ -183,7 +224,7 @@ function FileUpload({
       }
       setUploading(false);
     },
-    [dir, onUploaded]
+    [dir, onUploaded, projectFolder]
   );
 
   return (
@@ -248,36 +289,33 @@ function FileUpload({
 
 function ProjectEditor({
   project,
+  projectIndex,
   onChange,
   onDelete,
 }: {
   project: Project;
+  projectIndex: number;
   onChange: (p: Project) => void;
   onDelete: () => void;
 }) {
+  const mediaFolder = project.mediaFolder || createProjectMediaFolder(project.title, projectIndex);
+  const updateProject = (changes: Partial<Project>) =>
+    onChange({ ...project, ...changes, mediaFolder });
+
   return (
-    <div className="relative rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 space-y-3">
+    <div className="relative space-y-3 rounded-xl border border-white/[0.14] bg-black/35 p-4 shadow-[0_12px_30px_rgba(0,0,0,.18)] backdrop-blur-md">
       <button
         onClick={onDelete}
         className="absolute right-3 top-3 rounded p-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400"
       >
         <Trash2 size={14} />
       </button>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="项目名称">
-          <Input
-            value={project.title}
-            onChange={(v) => onChange({ ...project, title: v })}
-          />
-        </Field>
-        <Field label="GitHub 链接">
-          <Input
-            value={project.github}
-            onChange={(v) => onChange({ ...project, github: v })}
-            placeholder="https://github.com/..."
-          />
-        </Field>
-      </div>
+      <Field label="项目名称">
+        <Input
+          value={project.title}
+          onChange={(v) => onChange({ ...project, title: v })}
+        />
+      </Field>
       <Field label="演示链接（飞书/网页等）" color="text-green-400">
         <Input
           value={project.demo}
@@ -285,11 +323,51 @@ function ProjectEditor({
           placeholder="https://..."
         />
       </Field>
+      <Field label="项目网页后缀">
+        <Input
+          value={project.slug || ""}
+          onChange={(value) => updateProject({ slug: normalizeProjectSlug(value) })}
+          placeholder="kaiju-tianzai"
+        />
+        <p className="mt-1 text-xs text-zinc-500">项目地址：/projects/{project.slug || "网页后缀"}</p>
+      </Field>
+      <FileUpload
+        label="项目封面"
+        dir="projects"
+        projectFolder={mediaFolder}
+        currentPath={project.coverImage || ""}
+        onUploaded={(path) => updateProject({ coverImage: path })}
+        accept="image/*"
+        icon={<ImageIcon size={16} />}
+      />
+      <Field label="项目列表封面取景位置" hint="选择卡片裁切时要保留的区域">
+        <div className="grid max-w-48 grid-cols-3 gap-1.5">
+          {COVER_POSITION_OPTIONS.map((option) => {
+            const selected = (project.coverPosition || "center") === option.value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                title={option.title}
+                onClick={() => updateProject({ coverPosition: option.value })}
+                className={`h-9 rounded-md border text-sm transition-colors ${
+                  selected
+                    ? "border-cyan-400/70 bg-cyan-400/15 text-cyan-200"
+                    : "border-white/[0.1] bg-black/20 text-zinc-500 hover:border-cyan-400/35 hover:text-zinc-200"
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-2 text-xs text-zinc-500">当前：{COVER_POSITION_OPTIONS.find((option) => option.value === (project.coverPosition || "center"))?.title}</p>
+      </Field>
       {/* Multiple images */}
       <div>
         <div className="mb-2 flex items-center justify-between">
           <span className="text-sm font-medium text-zinc-400">
-            <span className="text-purple-400">项目截图（{project.images?.length || 0} 张）</span>
+            <span className="text-purple-400">画面截图（{project.images?.length || 0} 张）</span>
           </span>
           <button
             onClick={() => onChange({ ...project, images: [...(project.images || []), ""] })}
@@ -304,11 +382,45 @@ function ProjectEditor({
               key={i}
               label={`截图 ${i + 1}`}
               dir="projects"
+              projectFolder={mediaFolder}
               currentPath={img}
               onUploaded={(path) => {
                 const imgs = [...(project.images || [])];
                 imgs[i] = path;
-                onChange({ ...project, images: imgs });
+                updateProject({ images: imgs });
+              }}
+              accept="image/*"
+              icon={<ImageIcon size={16} />}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Character and scene design images */}
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-sm font-medium text-zinc-400">
+            <span className="text-amber-400">角色与场景设计（{project.designImages?.length || 0} 张）</span>
+          </span>
+          <button
+            onClick={() => onChange({ ...project, designImages: [...(project.designImages || []), ""] })}
+            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-amber-400/30 px-2 py-1 text-xs text-amber-400 transition-colors hover:bg-amber-400/5"
+          >
+            <Plus size={12} /> 添加图片
+          </button>
+        </div>
+        <div className="space-y-2">
+          {(project.designImages || []).map((img, i) => (
+            <FileUpload
+              key={i}
+              label={`设计图 ${i + 1}`}
+              dir="projects"
+              projectFolder={mediaFolder}
+              currentPath={img}
+              onUploaded={(path) => {
+                const designImages = [...(project.designImages || [])];
+                designImages[i] = path;
+                updateProject({ designImages });
               }}
               accept="image/*"
               icon={<ImageIcon size={16} />}
@@ -336,11 +448,12 @@ function ProjectEditor({
               key={i}
               label={`视频 ${i + 1}`}
               dir="projects"
+              projectFolder={mediaFolder}
               currentPath={vid}
               onUploaded={(path) => {
                 const vids = [...(project.videos || [])];
                 vids[i] = path;
-                onChange({ ...project, videos: vids });
+                updateProject({ videos: vids });
               }}
               accept="video/*"
               icon={<Video size={16} />}
@@ -391,7 +504,7 @@ function ExperienceEditor({
   onDelete: () => void;
 }) {
   return (
-    <div className="relative rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 space-y-3">
+    <div className="relative space-y-3 rounded-xl border border-white/[0.14] bg-black/35 p-4 shadow-[0_12px_30px_rgba(0,0,0,.18)] backdrop-blur-md">
       <button
         onClick={onDelete}
         className="absolute right-3 top-3 rounded p-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400"
@@ -431,8 +544,9 @@ function ExperienceEditor({
 // ======================= Main Page =======================
 
 export default function AdminPage() {
-  const { content, updateContent, resetContent } = useContent();
+  const { content, updateContent, resetContent, setDefaultContent } = useContent();
   const [activeTab, setActiveTab] = useState<TabKey>("hero");
+  const [selectedProjectIndex, setSelectedProjectIndex] = useState<number | null>(null);
   const [draft, setDraft] = useState<SiteContent>(() =>
     JSON.parse(JSON.stringify(content))
   );
@@ -441,6 +555,11 @@ export default function AdminPage() {
   const router = useRouter();
 
   const handleSave = () => {
+    const slugs = draft.projects.map((project) => project.slug).filter(Boolean) as string[];
+    if (new Set(slugs).size !== slugs.length) {
+      alert("每个项目的网页后缀必须唯一，请修改重复的后缀后再保存。");
+      return;
+    }
     updateContent(draft);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -448,25 +567,41 @@ export default function AdminPage() {
 
   const handleReset = () => {
     if (window.confirm("确定要恢复所有默认内容吗？你当前的修改将丢失。")) {
-      resetContent();
-      setDraft(JSON.parse(JSON.stringify(defaultContent)));
+      const restoredContent = resetContent();
+      setDraft(JSON.parse(JSON.stringify(restoredContent)));
     }
+  };
+
+  const handleSetCurrentAsDefault = () => {
+    setDefaultContent(draft);
+    alert("当前整站内容已设为默认。以后点击“恢复默认”会回到这一版。");
   };
 
   const updateDraft = (partial: Partial<SiteContent>) => {
     setDraft((prev) => ({ ...prev, ...partial }));
   };
 
+  const moveProject = (from: number, direction: -1 | 1) => {
+    const to = from + direction;
+    if (to < 0 || to >= draft.projects.length) return;
+
+    const projects = [...draft.projects];
+    [projects[from], projects[to]] = [projects[to], projects[from]];
+    updateDraft({ projects });
+    setSelectedProjectIndex(to);
+  };
+
   return (
     <AuthGate>
     <div className="min-h-screen pt-20 pb-16 relative z-10">
       <div className="mx-auto max-w-4xl px-6">
+        <div className="rounded-2xl border border-white/[0.14] bg-[#070a13]/[0.86] p-4 shadow-[0_28px_90px_rgba(0,0,0,.5)] backdrop-blur-2xl sm:p-6">
         {/* Header */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push("/")}
-              className="flex items-center gap-2 rounded-lg border border-white/[0.08] px-4 py-2.5 text-base text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200"
+              className="flex items-center gap-2 rounded-lg border border-white/[0.16] bg-black/30 px-4 py-2.5 text-base text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-white/[0.06] hover:text-white"
             >
               <ArrowLeft size={14} />
               <ArrowLeft size={18} />
@@ -483,6 +618,13 @@ export default function AdminPage() {
               恢复默认
             </button>
             <button
+              onClick={handleSetCurrentAsDefault}
+              className="flex items-center gap-1.5 rounded-lg border border-amber-400/25 bg-amber-400/10 px-3 py-2 text-sm text-amber-300 transition-colors hover:bg-amber-400/15"
+            >
+              <Bookmark size={14} />
+              设为默认
+            </button>
+            <button
               onClick={handleSave}
               className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]"
             >
@@ -493,15 +635,18 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div className="mb-8 flex flex-wrap gap-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-1">
+        <div className="mb-8 flex flex-wrap gap-1 rounded-xl border border-white/[0.14] bg-black/35 p-1.5 backdrop-blur-md">
           {tabs.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => {
+                setActiveTab(tab.key);
+                if (tab.key !== "projects") setSelectedProjectIndex(null);
+              }}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
                 activeTab === tab.key
                   ? "bg-cyan-400/10 text-cyan-400 shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-300"
+                  : "text-zinc-300 hover:bg-white/[0.06] hover:text-white"
               }`}
             >
               {tab.icon}
@@ -513,7 +658,7 @@ export default function AdminPage() {
         {/* Tab content */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={activeTab}
+            key={`${activeTab}-${selectedProjectIndex ?? "list"}`}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
@@ -667,34 +812,106 @@ export default function AdminPage() {
             {/* ---- PROJECTS ---- */}
             {activeTab === "projects" && (
               <>
-                <Field label="页面标题">
-                  <Input value={draft.projectsTitle} onChange={(v) => updateDraft({ projectsTitle: v })} />
-                </Field>
-                <Field label="页面副标题">
-                  <Input value={draft.projectsSubtitle} onChange={(v) => updateDraft({ projectsSubtitle: v })} />
-                </Field>
-                <div className="space-y-4">
-                  {draft.projects.map((project, i) => (
-                    <ProjectEditor
-                      key={i}
-                      project={project}
-                      onChange={(p) => {
-                        const arr = [...draft.projects];
-                        arr[i] = p;
-                        updateDraft({ projects: arr });
-                      }}
-                      onDelete={() => updateDraft({ projects: draft.projects.filter((_, idx) => idx !== i) })}
-                    />
-                  ))}
-                </div>
-                <button
-                  onClick={() => updateDraft({
-                    projects: [...draft.projects, { title: "新项目", description: "", detail: "", tags: [], github: "", demo: "", images: [], videos: [] }],
-                  })}
-                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/[0.1] py-3 text-sm text-zinc-500 transition-colors hover:border-cyan-500/30 hover:text-cyan-400"
-                >
-                  <Plus size={14} /> 添加项目
-                </button>
+                {selectedProjectIndex === null ? (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-lg font-semibold text-zinc-100">项目管理</h2>
+                        <p className="mt-1 text-sm text-zinc-500">选择一个项目进入独立编辑页</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const newIndex = draft.projects.length;
+                          updateDraft({
+                            projects: [...draft.projects, { title: "新项目", description: "", detail: "", tags: [], github: "", demo: "", slug: `project-${newIndex + 1}`, mediaFolder: createProjectMediaFolder("new-project", newIndex), coverImage: "", coverPosition: "center", images: [], videos: [], designImages: [] }],
+                          });
+                          setSelectedProjectIndex(newIndex);
+                        }}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-400/10 px-3 py-2 text-sm font-medium text-cyan-400 transition-colors hover:bg-cyan-400/15"
+                      >
+                        <Plus size={15} /> 新建项目
+                      </button>
+                    </div>
+                    <Field label="页面标题">
+                      <Input value={draft.projectsTitle} onChange={(v) => updateDraft({ projectsTitle: v })} />
+                    </Field>
+                    <Field label="页面副标题">
+                      <Input value={draft.projectsSubtitle} onChange={(v) => updateDraft({ projectsSubtitle: v })} />
+                    </Field>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {draft.projects.map((project, i) => {
+                        const cover = project.coverImage || project.images?.find(Boolean);
+                        return (
+                          <button
+                            key={`${project.title}-${i}`}
+                            onClick={() => setSelectedProjectIndex(i)}
+                            className="group overflow-hidden rounded-xl border border-white/[0.14] bg-black/35 text-left shadow-[0_8px_24px_rgba(0,0,0,.14)] transition-all hover:-translate-y-0.5 hover:border-cyan-400/55 hover:bg-black/50"
+                          >
+                            <div className="flex min-h-24 items-stretch">
+                              <div className="flex w-28 shrink-0 items-center justify-center overflow-hidden border-r border-white/[0.06] bg-white/[0.02]">
+                                {cover ? (
+                                  <img src={asset(cover)} alt="" className="h-full w-full object-cover" />
+                                ) : (
+                                  <ImageIcon size={20} className="text-zinc-700" />
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-1 p-4">
+                                <p className="truncate font-medium text-zinc-200 transition-colors group-hover:text-cyan-300">{project.title || "未命名项目"}</p>
+                                <p className="mt-1 line-clamp-2 text-xs leading-5 text-zinc-500">{project.description || "尚未填写项目简介"}</p>
+                                <p className="mt-2 text-xs text-cyan-400/70">编辑项目 →</p>
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between gap-3">
+                      <button
+                        onClick={() => setSelectedProjectIndex(null)}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-2 text-sm text-zinc-400 transition-colors hover:border-cyan-400/30 hover:text-cyan-300"
+                      >
+                        <ArrowLeft size={15} /> 返回项目列表
+                      </button>
+                      <span className="truncate text-sm text-zinc-500">项目 {selectedProjectIndex + 1} / {draft.projects.length}</span>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => moveProject(selectedProjectIndex, -1)}
+                        disabled={selectedProjectIndex === 0}
+                        className="inline-flex items-center gap-1 rounded-lg border border-white/[0.08] px-2.5 py-2 text-xs text-zinc-400 transition-colors hover:border-cyan-400/30 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-35"
+                      >
+                        <ArrowUp size={14} /> 上移
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveProject(selectedProjectIndex, 1)}
+                        disabled={selectedProjectIndex === draft.projects.length - 1}
+                        className="inline-flex items-center gap-1 rounded-lg border border-white/[0.08] px-2.5 py-2 text-xs text-zinc-400 transition-colors hover:border-cyan-400/30 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-35"
+                      >
+                        <ArrowDown size={14} /> 下移
+                      </button>
+                    </div>
+                    {draft.projects[selectedProjectIndex] && (
+                      <ProjectEditor
+                        project={draft.projects[selectedProjectIndex]}
+                        projectIndex={selectedProjectIndex}
+                        onChange={(project) => {
+                          const arr = [...draft.projects];
+                          arr[selectedProjectIndex] = project;
+                          updateDraft({ projects: arr });
+                        }}
+                        onDelete={() => {
+                          updateDraft({ projects: draft.projects.filter((_, index) => index !== selectedProjectIndex) });
+                          setSelectedProjectIndex(null);
+                        }}
+                      />
+                    )}
+                  </>
+                )}
               </>
             )}
 
@@ -944,6 +1161,7 @@ export default function AdminPage() {
             <Save size={18} />
             {saved ? "已保存！去网站看看 →" : "保存所有修改"}
           </button>
+        </div>
         </div>
       </div>
     </div>

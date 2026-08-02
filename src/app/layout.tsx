@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import Background from "@/components/layout/Background";
 import WallpaperToggle from "@/components/layout/WallpaperToggle";
 import ThemeInjector from "@/components/layout/ThemeInjector";
+import LoadingScreen from "@/components/layout/LoadingScreen";
 import { ContentProvider } from "@/context/ContentContext";
 
 const geistSans = Geist({
@@ -37,6 +38,7 @@ export default function RootLayout({
         <ContentProvider>
           <ThemeInjector />
           <Background />
+          <LoadingScreen />
           <Navbar />
           <main className="relative z-10 flex-1">{children}</main>
           <Footer />

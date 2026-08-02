@@ -12,6 +12,9 @@ interface ProjectCardProps {
   tags: string[];
   github?: string;
   demo?: string;
+  slug?: string;
+  coverImage?: string;
+  coverPosition?: string;
   images?: string[];
   videos?: string[];
   index: number;
@@ -23,6 +26,9 @@ export default function ProjectCard({
   tags,
   github,
   demo,
+  slug,
+  coverImage,
+  coverPosition,
   images = [],
   videos = [],
   index,
@@ -30,7 +36,9 @@ export default function ProjectCard({
   const [imgIdx, setImgIdx] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
 
-  const allImages = images.filter(Boolean);
+  const allImages = [coverImage, ...images].filter(
+    (image, index, entries): image is string => Boolean(image) && entries.indexOf(image) === index
+  );
   const allVideos = videos.filter(Boolean);
   const currentImage = allImages[imgIdx];
 
@@ -49,7 +57,7 @@ export default function ProjectCard({
     <GlowCard delay={index * 0.1}>
       {/* Full-card clickable overlay — the entire card navigates to detail */}
       <Link
-        href={`/projects/${index}`}
+        href={`/projects/${slug || index}`}
         className="absolute inset-0 z-10 rounded-xl"
         aria-label={`查看 ${title} 详情`}
       />
@@ -57,19 +65,24 @@ export default function ProjectCard({
       {/* Media area */}
       <div className="relative mb-4 aspect-video rounded-lg border border-white/[0.04] bg-gradient-to-br from-cyan-500/10 to-purple-500/10 overflow-hidden group">
         {showVideo && allVideos.length > 0 ? (
-          <video
-            src={allVideos[0]}
-            className="h-full w-full object-contain"
-            muted loop playsInline autoPlay
-            controlsList="nodownload noplaybackrate noremoteplayback"
-            disablePictureInPicture
-            onContextMenu={(e) => e.preventDefault()}
-          />
+          <>
+            <video
+              src={allVideos[0]}
+              className="h-full w-full object-contain"
+              muted loop playsInline autoPlay
+              controlsList="nodownload noplaybackrate noremoteplayback"
+              disablePictureInPicture
+              onContextMenu={(e) => e.preventDefault()}
+            />
+          </>
         ) : currentImage ? (
           <img
             src={asset(currentImage)}
             alt={title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            style={{ objectPosition: coverPosition || "center" }}
+            draggable={false}
+            onContextMenu={(event) => event.preventDefault()}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">

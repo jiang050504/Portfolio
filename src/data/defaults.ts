@@ -4,8 +4,13 @@ export interface Project {
   tags: string[];
   github: string;
   demo: string;
+  slug?: string;
+  mediaFolder?: string;
+  coverImage?: string;
+  coverPosition?: string;
   images: string[];
   videos: string[];
+  designImages?: string[];
   detail: string;
 }
 
@@ -84,14 +89,14 @@ export const defaultContent: SiteContent = {
   projectsTitle: '项目作品',
   projectsSubtitle: '我参与和制作的商业项目',
   projects: [
-    { title: '《被挖灵脉后我飞升上仙》', description: '参与该商业项目的 AIGC 内容生成工作，包括角色场景概念图、宣传物料等 AI 辅助创作，项目已成功上线。', tags: ['AIGC','Stable Diffusion','即梦','概念设计'], github: '', demo: 'https://ecnb5b0oiq06.feishu.cn/wiki/TqIwwhLwKiz40lkUo2ncDfBKnhc', images: [], videos: ['/projects/飞仙2.mp4','/projects/飞仙.mp4'], detail: '在杭州云爻文化科技有限公司任职期间，我作为 AIGC 生成师参与了《被挖灵脉后我飞升上仙》的商业项目。' },
-    { title: '《冲喜当天，植物人老婆被我扎醒了》', description: '负责该剧集的 AIGC 视觉内容制作，运用多种 AI 工具高效产出符合项目调性的画面素材。', tags: ['AIGC','liblibAI','可灵','视频生成'], github: '', demo: 'https://novelquickapp.com/s/D_2X_iWqgGo/', images: ['/projects/6fd11bc1-7fe7-41c1-be8e-736325fbd61b.png'], videos: ['/projects/冲喜.mp4','/projects/冲喜2.mp4'], detail: '该项目是一部都市奇幻题材的短剧，我负责剧中 AIGC 视觉内容的整体制作。' },
-    { title: '《天渊帝尊之这个大师兄不太正经》', description: '太墟宗首席弟子陆小川，身负混沌大道圣体，却因体内「混沌黑洞」吞噬灵力，十年困在炼气境。', tags: ['AIGC','修仙','玄幻','2D漫剧'], github: '', demo: 'https://novelquickapp.com/s/A9BnMk9h74s/', images: ['/projects/微信图片_20260622102033_258_812.jpg'], videos: ['/projects/大师兄.mp4','/projects/7月11日_1.mp4'], detail: '太墟宗首席弟子陆小川，身负混沌大道圣体，却因体内「混沌黑洞」吞噬灵力。' },
-    { title: '狂婿', description: '', tags: ['AIGC','架空王朝','朝堂','脑洞'], github: '', demo: '', images: ['/projects/16比9.png'], videos: ['/projects/狂婿.mp4','/projects/狂婿1.mp4'], detail: '' },
-    { title: '《开局天灾:我囤万亿物资当统帅》', description: '2033年，超强台风将至，众人浑然不觉。重生归来的周辰，带着上一世被兄弟背叛惨死的恨意，觉醒空间异能。', tags: ['AIGC','末世','天灾','极寒','废土'], github: '', demo: '', images: ['/projects/710.png'], videos: ['/projects/开局天灾2.mp4','/projects/开局天灾.mp4'], detail: '2033年，超强台风将至，众人浑然不觉。重生归来的周辰，觉醒空间异能，倾尽家财疯狂囤积物资。' },
-    { title: '《她不爱我，我偏要救她》', description: '会计苏念重生回到母亲被骗前夕。前世母亲轻信干儿子，把积蓄一步步交出去。', tags: ['AIGC','亲情','反诈','真人短剧'], github: '', demo: 'https://novelquickapp.com/s/XC4cWTDi4hY/', images: ['/projects/16-9.png','/projects/7-10.png'], videos: ['/projects/救一个不爱我的妈2.mp4','/projects/救一个不爱我的妈1.mp4'], detail: '会计苏念重生回到母亲被骗前夕。她查批号、流水、登记信息，联手反诈民警追出诈骗团伙资金链。' },
-    { title: '《一针缝回半生春》', description: '老巷裁缝好心救助晕倒老人，反被对方儿子诬陷偷窃。获救老人藏于旗袍纽扣的录音道出真相。', tags: ['AIGC','都市','传统手艺','真人短剧'], github: '', demo: 'https://novelquickapp.com/s/cDEepVnCU6M/', images: ['/projects/红果7-10.png'], videos: ['/projects/一针缝回半生春1.mp4','/projects/一针缝回半生春2.mp4'], detail: '老巷裁缝好心救助晕倒老人。坏人依法获惩，裁缝重开店铺，守护住老年人本该拥有的尊严与温暖。' },
-    { title: '《洋洋小心愿》', description: '十岁的洋洋因父母无法陪自己过生日满心孤单，傍晚在老街草丛捡到藏着星空的漂流瓶。', tags: ['AIGC','亲情','留守儿童','愿望'], github: '', demo: 'https://ecnb5b0oiq06.feishu.cn/wiki/TqIwwhLwKiz40lkUo2ncDfBKnhc', images: ['/projects/洋洋小心愿_1.png','/projects/洋洋小心愿_2.png'], videos: ['/projects/7月11日.mp4'], detail: '十岁的洋洋因父母无法陪自己过生日满心孤单。圣龙化为星光应允祝福。' }
+    { title: '《被挖灵脉后我飞升上仙》', description: '参与该商业项目的 AIGC 内容生成工作，包括角色场景概念图、宣传物料等 AI 辅助创作，项目已成功上线。', tags: ['AIGC','Stable Diffusion','即梦','概念设计'], github: '', demo: 'https://ecnb5b0oiq06.feishu.cn/wiki/TqIwwhLwKiz40lkUo2ncDfBKnhc', images: [], videos: ['/projects/01-飞仙/飞仙2.mp4','/projects/01-飞仙/飞仙.mp4'], detail: '在杭州云爻文化科技有限公司任职期间，我作为 AIGC 生成师参与了《被挖灵脉后我飞升上仙》的商业项目。' },
+    { title: '《冲喜当天，植物人老婆被我扎醒了》', description: '负责该剧集的 AIGC 视觉内容制作，运用多种 AI 工具高效产出符合项目调性的画面素材。', tags: ['AIGC','liblibAI','可灵','视频生成'], github: '', demo: 'https://novelquickapp.com/s/D_2X_iWqgGo/', coverImage: '/projects/02-冲喜/6fd11bc1-7fe7-41c1-be8e-736325fbd61b.png', images: [], videos: ['/projects/02-冲喜/冲喜.mp4','/projects/02-冲喜/冲喜2.mp4'], designImages: ['/projects/02-冲喜/jimeng-2026-03-02-6471-删除右侧电脑桌.png','/projects/02-冲喜/客厅3.png','/projects/02-冲喜/苏软软正视图.png'], detail: '该项目是一部都市奇幻题材的短剧，我负责剧中 AIGC 视觉内容的整体制作。' },
+    { title: '《天渊帝尊之这个大师兄不太正经》', description: '太墟宗首席弟子陆小川，身负混沌大道圣体，却因体内「混沌黑洞」吞噬灵力，十年困在炼气境。', tags: ['AIGC','修仙','玄幻','2D漫剧'], github: '', demo: 'https://novelquickapp.com/s/A9BnMk9h74s/', coverImage: '/projects/03-大师兄/微信图片_20260622102033_258_812.jpg', images: [], videos: ['/projects/03-大师兄/大师兄.mp4','/projects/03-大师兄/7月11日_1.mp4'], designImages: ['/projects/03-大师兄/微信图片_20260622102034_259_812.jpg'], detail: '太墟宗首席弟子陆小川，身负混沌大道圣体，却因体内「混沌黑洞」吞噬灵力。' },
+    { title: '狂婿', description: '', tags: ['AIGC','架空王朝','朝堂','脑洞'], github: '', demo: '', coverImage: '/projects/04-狂婿/16比9.png', images: [], videos: ['/projects/04-狂婿/狂婿.mp4','/projects/04-狂婿/狂婿1.mp4'], designImages: [], detail: '' },
+    { title: '《开局天灾:我囤万亿物资当统帅》', description: '2033年，超强台风将至，众人浑然不觉。重生归来的周辰，带着上一世被兄弟背叛惨死的恨意，觉醒空间异能。', tags: ['AIGC','末世','天灾','极寒','废土'], github: '', demo: '', coverImage: '/projects/05-开局天灾/710.png', images: [], videos: ['/projects/05-开局天灾/开局天灾2.mp4','/projects/05-开局天灾/开局天灾.mp4'], designImages: ['/projects/05-开局天灾/7月31日_2.png','/projects/05-开局天灾/7月31日_21.png','/projects/05-开局天灾/周辰正视图.png'], detail: '2033年，超强台风将至，众人浑然不觉。重生归来的周辰，觉醒空间异能，倾尽家财疯狂囤积物资。' },
+    { title: '《她不爱我，我偏要救她》', description: '会计苏念重生回到母亲被骗前夕。前世母亲轻信干儿子，把积蓄一步步交出去。', tags: ['AIGC','亲情','反诈','真人短剧'], github: '', demo: 'https://novelquickapp.com/s/XC4cWTDi4hY/', coverImage: '/projects/06-救不爱我的妈/16-9.png', images: ['/projects/06-救不爱我的妈/7-10.png'], videos: ['/projects/06-救不爱我的妈/救一个不爱我的妈2.mp4','/projects/06-救不爱我的妈/救一个不爱我的妈1.mp4'], designImages: [], detail: '会计苏念重生回到母亲被骗前夕。她查批号、流水、登记信息，联手反诈民警追出诈骗团伙资金链。' },
+    { title: '《一针缝回半生春》', description: '老巷裁缝好心救助晕倒老人，反被对方儿子诬陷偷窃。获救老人藏于旗袍纽扣的录音道出真相。', tags: ['AIGC','都市','传统手艺','真人短剧'], github: '', demo: 'https://novelquickapp.com/s/cDEepVnCU6M/', coverImage: '/projects/07-一针缝回半生春/红果7-10.png', images: [], videos: ['/projects/07-一针缝回半生春/一针缝回半生春1.mp4','/projects/07-一针缝回半生春/一针缝回半生春2.mp4'], designImages: [], detail: '老巷裁缝好心救助晕倒老人。坏人依法获惩，裁缝重开店铺，守护住老年人本该拥有的尊严与温暖。' },
+    { title: '《洋洋小心愿》', description: '十岁的洋洋因父母无法陪自己过生日满心孤单，傍晚在老街草丛捡到藏着星空的漂流瓶。', tags: ['AIGC','亲情','留守儿童','愿望'], github: '', demo: 'https://ecnb5b0oiq06.feishu.cn/wiki/TqIwwhLwKiz40lkUo2ncDfBKnhc', coverImage: '/projects/08-洋洋小心愿/洋洋小心愿_1.png', images: ['/projects/08-洋洋小心愿/洋洋小心愿_2.png'], videos: ['/projects/08-洋洋小心愿/7月11日.mp4'], designImages: [], detail: '十岁的洋洋因父母无法陪自己过生日满心孤单。圣龙化为星光应允祝福。' }
   ],
   experienceTitle: '经历',
   experienceSubtitle: '我的工作与学习历程',
@@ -117,4 +122,30 @@ export const defaultContent: SiteContent = {
   wallpaperOpacity: 0.85,
   wallpaperBlur: 0,
   particlesOnWallpaper: true
+};
+
+const DEFAULT_PROJECT_SLUGS = [
+  "feixian",
+  "chongxi",
+  "dashixiong",
+  "kuangxu",
+  "kaiju-tianzai",
+  "jiubuaiwodema",
+  "yizhenfenghuibanshengchun",
+  "yangyangxiaoxinyuan",
+];
+
+defaultContent.projects = defaultContent.projects.map((project, index) => ({
+  ...project,
+  slug: DEFAULT_PROJECT_SLUGS[index],
+}));
+
+defaultContent.projects[3] = {
+  ...defaultContent.projects[3],
+  designImages: [
+    "/projects/04-狂婿/东宫别院内夜.png",
+    "/projects/04-狂婿/城南清虚观偏厢内日.png",
+    "/projects/04-狂婿/柳式.jpg",
+    "/projects/04-狂婿/苏挽.jpg",
+  ],
 };
