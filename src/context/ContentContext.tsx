@@ -16,6 +16,8 @@ import {
 
 const STORAGE_KEY = "portfolio-content";
 const DEFAULT_SNAPSHOT_KEY = "portfolio-default-content";
+const CONTENT_VERSION_KEY = "portfolio-content-version";
+const CONTENT_VERSION = "2026-08-02-complete-media-v1";
 
 function mergeProject(defaultProject: Project, savedProject?: Partial<Project>): Project {
   if (!savedProject) return defaultProject;
@@ -79,6 +81,18 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   // Load from localStorage on mount
   useEffect(() => {
     try {
+      // A deployed content update must take precedence over stale browser data.
+      // Once migrated, later admin edits continue to persist normally.
+      const savedVersion = localStorage.getItem(CONTENT_VERSION_KEY);
+      if (savedVersion !== CONTENT_VERSION) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultContent));
+        localStorage.setItem(DEFAULT_SNAPSHOT_KEY, JSON.stringify(defaultContent));
+        localStorage.setItem(CONTENT_VERSION_KEY, CONTENT_VERSION);
+        setContent(defaultContent);
+        setMounted(true);
+        return;
+      }
+
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved) as Partial<SiteContent>;
