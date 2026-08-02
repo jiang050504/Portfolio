@@ -124,6 +124,21 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   // Load from localStorage on mount
   useEffect(() => {
+    // Production deployments must reflect the version bundled with the source.
+    // Do not let content saved by an older deployment on the same domain keep
+    // overriding newly deployed projects and media.
+    if (process.env.NODE_ENV === "production") {
+      setContent(defaultContent);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultContent));
+        localStorage.setItem(DEFAULT_SNAPSHOT_KEY, JSON.stringify(defaultContent));
+      } catch {
+        // The bundled snapshot remains authoritative if storage is unavailable.
+      }
+      setMounted(true);
+      return;
+    }
+
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {

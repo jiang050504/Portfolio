@@ -325,6 +325,37 @@
       ],
       "detail": "",
       "slug": "yikouguo"
+    },
+    {
+      "title": "《开局天灾：我囤万亿物资当统帅》",
+      "description": "2033年，超强台风将至，众人浑然不觉。重生归来的周辰，带着上一世被兄弟张:\n力、女友苏软软背叛惨死的恨意，觉醒空间异能，倾尽家财疯狂囤积物资，将仇人尽数诱困在樱花小区。",
+      "detail": "2033年，超强台风将至，众人浑然不觉。重生归来的周辰，带着上一世被兄弟张:\n力、女友苏软软背叛惨死的恨意，觉醒空间异能，倾尽家财疯狂囤积物资，将仇人尽数诱困在樱花小区。",
+      "tags": [
+        "AIGC",
+        "天灾",
+        "复仇",
+        "重生"
+      ],
+      "github": "",
+      "demo": "https://novelquickapp.com/s/VR6plzbTpTI/",
+      "slug": "tianzai",
+      "mediaFolder": "tianzai",
+      "coverImage": "/projects/tianzai/710.png",
+      "coverPosition": "center",
+      "images": [
+        "/projects/tianzai/7月31日_2.png",
+        "/projects/tianzai/7月31日_21.png"
+      ],
+      "videos": [
+        "/projects/tianzai/开局天灾2.mp4",
+        "/projects/tianzai/开局天灾.mp4"
+      ],
+      "designImages": [
+        "/projects/tianzai/jimeng-2026-03-02-6471-删除右侧电脑桌.png",
+        "/projects/tianzai/客厅3.png",
+        "/projects/tianzai/周辰正视图.png",
+        "/projects/tianzai/苏软软正视图.png"
+      ]
     }
   ],
   "experienceTitle": "经历",
@@ -379,7 +410,7 @@
   ],
   "contactStatusTitle": "求职意向",
   "contactStatusText": "意向岗位：AIGC / 网络 / 计算机 | 期望薪资：7-8K | 意向城市：杭州。",
-  "theme": "hengyue",
+  "theme": "cyber",
   "adminPassword": "admin123",
   "wallpaperEnabled": true,
   "wallpaperPath": "",
