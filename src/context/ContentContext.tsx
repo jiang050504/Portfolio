@@ -95,9 +95,15 @@ function mergeSavedContent(saved: Partial<SiteContent>): SiteContent {
     return [mergedProject];
   });
 
+  const savedTheme = (saved as { theme?: string }).theme;
+  const theme = savedTheme === "cyber" ? "frostmoon" : savedTheme;
+
   return {
     ...defaultContent,
     ...saved,
+    theme: theme === "frostmoon" || theme === "hengyue" || theme === "hongyue"
+      ? theme
+      : defaultContent.theme,
     projects: savedProjects.length
       ? mergedProjects
       : defaultContent.projects,

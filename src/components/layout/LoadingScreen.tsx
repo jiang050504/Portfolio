@@ -6,7 +6,6 @@ import { useContent } from "@/context/ContentContext";
 import { asset } from "@/lib/path";
 
 const DEFAULT_WALLPAPERS: Record<string, string> = {
-  cyber: "/wallpapers/恒月2.png",
   frostmoon: "/wallpapers/霜月.png",
   hengyue: "/wallpapers/恒月.png",
   hongyue: "/wallpapers/虹月.png",

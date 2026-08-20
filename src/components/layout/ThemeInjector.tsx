@@ -7,7 +7,8 @@ export default function ThemeInjector() {
   const { content } = useContent();
 
   useEffect(() => {
-    document.documentElement.dataset.theme = content.theme || "cyber";
+    const savedTheme = content.theme as string;
+    document.documentElement.dataset.theme = savedTheme === "cyber" ? "frostmoon" : savedTheme || "frostmoon";
   }, [content.theme]);
 
   return null;

@@ -3,10 +3,9 @@
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useContent } from "@/context/ContentContext";
-import { Sparkles, Moon, Sun, Flame } from "lucide-react";
+import { Sparkles, Moon, Flame } from "lucide-react";
 
 const themes = [
-  { id: "cyber" as const, label: "暗夜", icon: Sun, color: "#06b6d4" },
   { id: "frostmoon" as const, label: "霜月", icon: Moon, color: "#a9ddff" },
   { id: "hengyue" as const, label: "恒月", icon: Sparkles, color: "#ffd56f" },
   { id: "hongyue" as const, label: "虹月", icon: Flame, color: "#ff424f" },

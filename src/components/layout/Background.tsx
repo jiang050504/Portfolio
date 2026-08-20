@@ -6,27 +6,10 @@ import { asset } from "@/lib/path";
 
 // Theme default wallpapers
 const DEFAULT_WALLPAPERS: Record<string, string> = {
-  cyber: "/wallpapers/恒月2.png",
   frostmoon: "/wallpapers/霜月.png",
   hengyue: "/wallpapers/恒月.png",
   hongyue: "/wallpapers/虹月.png",
 };
-
-// ==================== Cyber ====================
-function useCyberParticles(canvasRef: React.RefObject<HTMLCanvasElement | null>, active: boolean) {
-  const pRef = useRef<{x:number;y:number;vx:number;vy:number;r:number}[]>([]);
-  const aRef = useRef(0);
-  const init = useCallback(() => {
-    if(!active)return;const c=canvasRef.current;if(!c)return;const ctx=c.getContext("2d");if(!ctx)return;
-    const R=()=>{c.width=window.innerWidth;c.height=window.innerHeight};R();window.addEventListener("resize",R);
-    const n=Math.min(80,Math.floor(window.innerWidth/15));
-    pRef.current=Array.from({length:n},()=>({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,r:Math.random()*2+.5}));
-    const D=()=>{if(!ctx||!c)return;ctx.clearRect(0,0,c.width,c.height);
-    pRef.current.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle="rgba(6,182,212,0.15)";ctx.fill()});
-    pRef.current.forEach((a,i)=>{pRef.current.slice(i+1).forEach(b=>{const dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy);if(d<120){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(6,182,212,${0.04*(1-d/120)})`;ctx.stroke()}})});
-    aRef.current=requestAnimationFrame(D)};D();return()=>{window.removeEventListener("resize",R);cancelAnimationFrame(aRef.current)}},[active,canvasRef]);
-  useEffect(()=>{const c=init();return()=>c?.()},[init]);
-}
 
 // ==================== Frostmoon ====================
 function useSnowflakes(canvasRef: React.RefObject<HTMLCanvasElement | null>, active: boolean) {
@@ -101,7 +84,6 @@ export default function Background() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const showParticles = !wallpaperEnabled || particlesOnWallpaper;
 
-  useCyberParticles(canvasRef, theme==="cyber" && showParticles);
   useSnowflakes(canvasRef, theme==="frostmoon" && showParticles);
   useGoldDust(canvasRef, theme==="hengyue" && showParticles);
   useEmbers(canvasRef, theme==="hongyue" && showParticles);

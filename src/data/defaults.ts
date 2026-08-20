@@ -54,7 +54,7 @@ export interface SiteContent {
   contacts: Contact[];
   contactStatusTitle: string;
   contactStatusText: string;
-  theme: 'cyber' | 'frostmoon' | 'hengyue' | 'hongyue';
+  theme: 'frostmoon' | 'hengyue' | 'hongyue';
   adminPassword: string;
   wallpaperEnabled: boolean;
   wallpaperPath: string;
@@ -119,7 +119,7 @@ export let defaultContent: SiteContent = {
   ],
   contactStatusTitle: '求职意向',
   contactStatusText: '意向岗位：AIGC / 网络 / 计算机 | 期望薪资：7-8K | 意向城市：杭州。',
-  theme: 'cyber',
+  theme: 'frostmoon',
   adminPassword: 'admin123',
   wallpaperEnabled: true,
   wallpaperPath: '',
