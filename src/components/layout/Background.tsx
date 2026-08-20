@@ -88,12 +88,17 @@ export default function Background() {
   useGoldDust(canvasRef, theme==="hengyue" && showParticles);
   useEmbers(canvasRef, theme==="hongyue" && showParticles);
 
-  // Use theme default wallpaper if none set
-  const displayWallpaper = wallpaperPath || DEFAULT_WALLPAPERS[theme] || "";
+  // A deployed site must never fall back to a blank solid-color page. Older
+  // browser data may refer to a removed theme or have wallpaperEnabled off,
+  // so always keep the current theme wallpaper (or 霜月 as a final fallback).
+  const displayWallpaper =
+    wallpaperPath ||
+    DEFAULT_WALLPAPERS[theme] ||
+    DEFAULT_WALLPAPERS.frostmoon;
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
-      {wallpaperEnabled && displayWallpaper && (
+      {displayWallpaper && (
         <div className="absolute inset-0">
           <img src={asset(displayWallpaper)} alt="" className="h-full w-full" style={{objectFit:"cover",opacity:wallpaperOpacity,filter:wallpaperBlur>0?`blur(${wallpaperBlur}px)`:undefined}} />
         </div>

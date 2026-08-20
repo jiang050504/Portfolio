@@ -15,9 +15,10 @@ export default function LoadingScreen() {
   const { content } = useContent();
   const [visible, setVisible] = useState(true);
   const [leaving, setLeaving] = useState(false);
-  const wallpaper = content.wallpaperEnabled
-    ? content.wallpaperPath || DEFAULT_WALLPAPERS[content.theme] || ""
-    : "";
+  const wallpaper =
+    content.wallpaperPath ||
+    DEFAULT_WALLPAPERS[content.theme] ||
+    DEFAULT_WALLPAPERS.frostmoon;
   const firstWallpaper = useRef(wallpaper);
 
   useEffect(() => {
