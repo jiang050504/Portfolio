@@ -29,6 +29,7 @@ type TabKey =
   | "about"
   | "skills"
   | "projects"
+  | "personalWorks"
   | "experience"
   | "contact"
   | "wallpaper";
@@ -53,6 +54,7 @@ const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: "about", label: "关于我", icon: null },
   { key: "skills", label: "技能", icon: null },
   { key: "projects", label: "项目", icon: null },
+  { key: "personalWorks", label: "个人作品", icon: null },
   { key: "experience", label: "经历", icon: null },
   { key: "contact", label: "联系", icon: null },
   { key: "wallpaper", label: "壁纸", icon: <Layers size={14} /> },
@@ -294,11 +296,13 @@ function ProjectEditor({
   projectIndex,
   onChange,
   onDelete,
+  basePath = "/projects",
 }: {
   project: Project;
   projectIndex: number;
   onChange: (p: Project) => void;
   onDelete: () => void;
+  basePath?: string;
 }) {
   const projectSlug =
     normalizeProjectSlug(project.slug || "") ||
@@ -346,7 +350,7 @@ function ProjectEditor({
           onChange={(value) => updateProject({ slug: normalizeProjectSlug(value) })}
           placeholder="kaiju-tianzai"
         />
-        <p className="mt-1 text-xs text-zinc-500">项目地址：/projects/{project.slug || "网页后缀"}</p>
+        <p className="mt-1 text-xs text-zinc-500">项目地址：{basePath}/{project.slug || "网页后缀"}</p>
       </Field>
       <FileUpload
         label="项目封面"
@@ -568,6 +572,7 @@ export default function AdminPage() {
   const { content, saveContent, resetContent, setDefaultContent } = useContent();
   const [activeTab, setActiveTab] = useState<TabKey>("hero");
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number | null>(null);
+  const [selectedPersonalWorkIndex, setSelectedPersonalWorkIndex] = useState<number | null>(null);
   const [draft, setDraft] = useState<SiteContent>(() =>
     JSON.parse(JSON.stringify(content))
   );
@@ -583,7 +588,9 @@ export default function AdminPage() {
   }, [content]);
 
   const handleSave = async () => {
-    const slugs = draft.projects.map((project) => project.slug).filter(Boolean) as string[];
+    const slugs = [...draft.projects, ...draft.personalWorks]
+      .map((project) => project.slug)
+      .filter(Boolean) as string[];
     if (new Set(slugs).size !== slugs.length) {
       alert("每个项目的网页后缀必须唯一，请修改重复的后缀后再保存。");
       return;
@@ -622,6 +629,16 @@ export default function AdminPage() {
     [projects[from], projects[to]] = [projects[to], projects[from]];
     updateDraft({ projects });
     setSelectedProjectIndex(to);
+  };
+
+  const movePersonalWork = (from: number, direction: -1 | 1) => {
+    const to = from + direction;
+    if (to < 0 || to >= draft.personalWorks.length) return;
+
+    const personalWorks = [...draft.personalWorks];
+    [personalWorks[from], personalWorks[to]] = [personalWorks[to], personalWorks[from]];
+    updateDraft({ personalWorks });
+    setSelectedPersonalWorkIndex(to);
   };
 
   return (
@@ -675,6 +692,7 @@ export default function AdminPage() {
               onClick={() => {
                 setActiveTab(tab.key);
                 if (tab.key !== "projects") setSelectedProjectIndex(null);
+                if (tab.key !== "personalWorks") setSelectedPersonalWorkIndex(null);
               }}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
                 activeTab === tab.key
@@ -943,6 +961,147 @@ export default function AdminPage() {
                         onDelete={() => {
                           updateDraft({ projects: draft.projects.filter((_, index) => index !== selectedProjectIndex) });
                           setSelectedProjectIndex(null);
+                        }}
+                      />
+                    )}
+                  </>
+                )}
+              </>
+            )}
+
+            {/* ---- PERSONAL WORKS ---- */}
+            {activeTab === "personalWorks" && (
+              <>
+                {selectedPersonalWorkIndex === null ? (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-lg font-semibold text-zinc-100">个人作品管理</h2>
+                        <p className="mt-1 text-sm text-zinc-500">独立管理你的个人创作，不与商业项目混排</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const newIndex = draft.personalWorks.length;
+                          const slug = `personal-work-${newIndex + 1}`;
+                          updateDraft({
+                            personalWorks: [
+                              ...draft.personalWorks,
+                              {
+                                title: "新个人作品",
+                                description: "",
+                                detail: "",
+                                tags: [],
+                                github: "",
+                                demo: "",
+                                slug,
+                                mediaFolder: slug,
+                                coverImage: "",
+                                coverPosition: "center",
+                                images: [],
+                                videos: [],
+                                designImages: [],
+                              },
+                            ],
+                          });
+                          setSelectedPersonalWorkIndex(newIndex);
+                        }}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-400/10 px-3 py-2 text-sm font-medium text-cyan-400 transition-colors hover:bg-cyan-400/15"
+                      >
+                        <Plus size={15} /> 新建个人作品
+                      </button>
+                    </div>
+                    <Field label="页面标题">
+                      <Input
+                        value={draft.personalWorksTitle}
+                        onChange={(value) => updateDraft({ personalWorksTitle: value })}
+                      />
+                    </Field>
+                    <Field label="页面副标题">
+                      <Input
+                        value={draft.personalWorksSubtitle}
+                        onChange={(value) => updateDraft({ personalWorksSubtitle: value })}
+                      />
+                    </Field>
+                    {draft.personalWorks.length > 0 ? (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {draft.personalWorks.map((work, index) => {
+                          const cover = work.coverImage || work.images?.find(Boolean);
+                          return (
+                            <button
+                              key={`${work.title}-${index}`}
+                              onClick={() => setSelectedPersonalWorkIndex(index)}
+                              className="group overflow-hidden rounded-xl border border-white/[0.14] bg-black/35 text-left shadow-[0_8px_24px_rgba(0,0,0,.14)] transition-all hover:-translate-y-0.5 hover:border-cyan-400/55 hover:bg-black/50"
+                            >
+                              <div className="flex min-h-24 items-stretch">
+                                <div className="flex w-28 shrink-0 items-center justify-center overflow-hidden border-r border-white/[0.06] bg-white/[0.02]">
+                                  {cover ? (
+                                    <img src={asset(cover)} alt="" className="h-full w-full object-cover" />
+                                  ) : (
+                                    <ImageIcon size={20} className="text-zinc-700" />
+                                  )}
+                                </div>
+                                <div className="min-w-0 flex-1 p-4">
+                                  <p className="truncate font-medium text-zinc-200 transition-colors group-hover:text-cyan-300">{work.title || "未命名个人作品"}</p>
+                                  <p className="mt-1 line-clamp-2 text-xs leading-5 text-zinc-500">{work.description || "尚未填写作品简介"}</p>
+                                  <p className="mt-2 text-xs text-cyan-400/70">编辑作品 →</p>
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-white/[0.12] px-5 py-10 text-center text-sm text-zinc-500">
+                        暂无个人作品，点击右上角按钮添加
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between gap-3">
+                      <button
+                        onClick={() => setSelectedPersonalWorkIndex(null)}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-2 text-sm text-zinc-400 transition-colors hover:border-cyan-400/30 hover:text-cyan-300"
+                      >
+                        <ArrowLeft size={15} /> 返回个人作品列表
+                      </button>
+                      <span className="truncate text-sm text-zinc-500">作品 {selectedPersonalWorkIndex + 1} / {draft.personalWorks.length}</span>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => movePersonalWork(selectedPersonalWorkIndex, -1)}
+                        disabled={selectedPersonalWorkIndex === 0}
+                        className="inline-flex items-center gap-1 rounded-lg border border-white/[0.08] px-2.5 py-2 text-xs text-zinc-400 transition-colors hover:border-cyan-400/30 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-35"
+                      >
+                        <ArrowUp size={14} /> 上移
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => movePersonalWork(selectedPersonalWorkIndex, 1)}
+                        disabled={selectedPersonalWorkIndex === draft.personalWorks.length - 1}
+                        className="inline-flex items-center gap-1 rounded-lg border border-white/[0.08] px-2.5 py-2 text-xs text-zinc-400 transition-colors hover:border-cyan-400/30 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-35"
+                      >
+                        <ArrowDown size={14} /> 下移
+                      </button>
+                    </div>
+                    {draft.personalWorks[selectedPersonalWorkIndex] && (
+                      <ProjectEditor
+                        project={draft.personalWorks[selectedPersonalWorkIndex]}
+                        projectIndex={selectedPersonalWorkIndex}
+                        basePath="/personal-works"
+                        onChange={(work) => {
+                          const personalWorks = [...draft.personalWorks];
+                          personalWorks[selectedPersonalWorkIndex] = work;
+                          updateDraft({ personalWorks });
+                        }}
+                        onDelete={() => {
+                          updateDraft({
+                            personalWorks: draft.personalWorks.filter(
+                              (_, index) => index !== selectedPersonalWorkIndex
+                            ),
+                          });
+                          setSelectedPersonalWorkIndex(null);
                         }}
                       />
                     )}

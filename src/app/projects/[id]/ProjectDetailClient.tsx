@@ -14,6 +14,7 @@ import MediaWatermark from "@/components/ui/MediaWatermark";
 
 interface Props {
   projectId: string;
+  collection?: "projects" | "personalWorks";
 }
 
 function GalleryImage({
@@ -75,8 +76,11 @@ function DesignImageTile({
   );
 }
 
-export default function ProjectDetailClient({ projectId }: Props) {
+export default function ProjectDetailClient({ projectId, collection = "projects" }: Props) {
   const { content } = useContent();
+  const projectCollection = content[collection];
+  const listPath = collection === "personalWorks" ? "/personal-works" : "/projects";
+  const listLabel = collection === "personalWorks" ? "个人作品" : "项目作品";
   const [fullscreenIdx, setFullscreenIdx] = useState<number | null>(null);
   const [coverIsPortrait, setCoverIsPortrait] = useState(false);
   const [coverLayoutReady, setCoverLayoutReady] = useState(false);
@@ -85,9 +89,9 @@ export default function ProjectDetailClient({ projectId }: Props) {
   const [portraitDesignImages, setPortraitDesignImages] = useState<string[]>([]);
 
   const legacyIndex = /^\d+$/.test(projectId) ? Number.parseInt(projectId, 10) : -1;
-  const projectIndex = content.projects.findIndex((item) => item.slug === projectId);
+  const projectIndex = projectCollection.findIndex((item) => item.slug === projectId);
   const resolvedIndex = projectIndex >= 0 ? projectIndex : legacyIndex;
-  const project = content.projects[resolvedIndex];
+  const project = projectCollection[resolvedIndex];
   const projectCoverImage = project?.coverImage || project?.images?.find(Boolean) || "";
   const designImages = useMemo(
     () => project?.designImages?.filter(Boolean) || [],
@@ -208,8 +212,8 @@ export default function ProjectDetailClient({ projectId }: Props) {
         <div className="text-center">
           <h1 className="text-4xl font-bold text-[var(--text-secondary)]">项目未找到</h1>
           <p className="mt-4 text-[var(--text-muted)]">该项目不存在或已被删除</p>
-          <Link href="/projects" className="mt-6 inline-flex items-center gap-2 text-[var(--accent-primary)] hover:text-[var(--accent-primary)]">
-            <ArrowLeft size={16} /> 返回作品列表
+          <Link href={listPath} className="mt-6 inline-flex items-center gap-2 text-[var(--accent-primary)] hover:text-[var(--accent-primary)]">
+            <ArrowLeft size={16} /> 返回{listLabel}
           </Link>
         </div>
       </div>
@@ -232,8 +236,8 @@ export default function ProjectDetailClient({ projectId }: Props) {
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="mx-auto max-w-4xl px-6">
-        <Link href="/projects" className="mb-8 inline-flex items-center gap-2 rounded-lg border border-white/[0.08] px-4 py-2.5 text-base text-[var(--text-secondary)] transition-colors hover:border-[var(--accent-primary)]/30 hover:text-[var(--accent-primary)]">
-          <ArrowLeft size={18} /> 返回作品列表
+        <Link href={listPath} className="mb-8 inline-flex items-center gap-2 rounded-lg border border-white/[0.08] px-4 py-2.5 text-base text-[var(--text-secondary)] transition-colors hover:border-[var(--accent-primary)]/30 hover:text-[var(--accent-primary)]">
+          <ArrowLeft size={18} /> 返回{listLabel}
         </Link>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>

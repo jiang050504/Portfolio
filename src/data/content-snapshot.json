@@ -76,6 +76,9 @@
       ]
     }
   ],
+  "personalWorksTitle": "个人作品",
+  "personalWorksSubtitle": "我的独立创作与个人项目",
+  "personalWorks": [],
   "projectsTitle": "项目作品",
   "projectsSubtitle": "我参与和制作的商业项目",
   "projects": [

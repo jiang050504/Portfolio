@@ -20,7 +20,12 @@ export function isSiteContent(value: unknown): value is SiteContent {
 export function sanitizeContent(content: SiteContent) {
   const sanitized = { ...content } as SiteContent & { adminPassword?: string };
   delete sanitized.adminPassword;
-  return sanitized;
+  return {
+    ...sanitized,
+    personalWorksTitle: sanitized.personalWorksTitle || "个人作品",
+    personalWorksSubtitle: sanitized.personalWorksSubtitle || "我的独立创作与个人项目",
+    personalWorks: Array.isArray(sanitized.personalWorks) ? sanitized.personalWorks : [],
+  };
 }
 
 function snapshotPath() {

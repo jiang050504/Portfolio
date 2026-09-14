@@ -80,6 +80,7 @@ function mergeSavedContent(saved: Partial<SiteContent>): SiteContent {
   const safeSaved = { ...saved } as Partial<SiteContent> & { adminPassword?: string };
   delete safeSaved.adminPassword;
   const savedProjects = Array.isArray(saved.projects) ? saved.projects : [];
+  const savedPersonalWorks = Array.isArray(saved.personalWorks) ? saved.personalWorks : [];
   const seenProjectSlugs = new Set<string>();
 
   const mergedProjects = savedProjects.flatMap((savedProject) => {
@@ -110,6 +111,9 @@ function mergeSavedContent(saved: Partial<SiteContent>): SiteContent {
     projects: savedProjects.length
       ? mergedProjects
       : defaultContent.projects,
+    personalWorksTitle: saved.personalWorksTitle || defaultContent.personalWorksTitle,
+    personalWorksSubtitle: saved.personalWorksSubtitle || defaultContent.personalWorksSubtitle,
+    personalWorks: savedPersonalWorks.map((work) => mergeProject(work, work)),
   };
 }
 

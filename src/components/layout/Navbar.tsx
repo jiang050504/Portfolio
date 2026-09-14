@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/", label: "首页" },
   { href: "/about", label: "关于我" },
   { href: "/projects", label: "项目作品" },
+  { href: "/personal-works", label: "个人作品" },
   { href: "/experience", label: "经历" },
   { href: "/contact", label: "联系" },
 ];
@@ -35,7 +36,7 @@ export default function Navbar() {
         {/* Desktop links */}
         <div className="hidden items-center gap-1 sm:flex">
           {navLinks.map((link) => {
-            const isActive = pathname === link.href;
+            const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(`${link.href}/`));
             return (
               <Link
                 key={link.href}
@@ -80,7 +81,7 @@ export default function Navbar() {
           >
             <div className="flex flex-col gap-1 px-6 py-4">
               {navLinks.map((link) => {
-                const isActive = pathname === link.href;
+                const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(`${link.href}/`));
                 return (
                   <Link
                     key={link.href}

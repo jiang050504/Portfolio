@@ -46,6 +46,9 @@ export interface SiteContent {
   projectsTitle: string;
   projectsSubtitle: string;
   projects: Project[];
+  personalWorksTitle: string;
+  personalWorksSubtitle: string;
+  personalWorks: Project[];
   experienceTitle: string;
   experienceSubtitle: string;
   experiences: Experience[];
@@ -101,6 +104,9 @@ export let defaultContent: SiteContent = {
     { title: '《守住一口锅，春城开满花》', description: '', tags: ['AIGC','真人短剧','角色设计','场景设计'], github: '', demo: '', mediaFolder: '09-new-project', coverImage: '/projects/09-new-project/9-16.png', coverPosition: 'center', images: ['/projects/09-new-project/01.png','/projects/09-new-project/02.png'], videos: ['/projects/09-new-project/一口锅1-1.mp4','/projects/09-new-project/一口锅2-1.mp4'], designImages: ['/projects/09-new-project/张小玖.png','/projects/09-new-project/张记老店门口日景.png','/projects/09-new-project/赵苏磊.png','/projects/09-new-project/音像通讯店日景.png','/projects/09-new-project/馄饨摊正面镜头1.png'], detail: '' },
     { title: '《觉醒较真系统后，我专治不服》', description: '', tags: ['AIGC','系统流','角色设计','视频生成'], github: '', demo: '', mediaFolder: '10-new-project', coverImage: '/projects/10-new-project/竖屏海报1.jpg', coverPosition: 'center', images: ['/projects/10-new-project/8月2日.png','/projects/10-new-project/8月2日1.png'], videos: ['/projects/10-new-project/02系统.mp4','/projects/10-new-project/系统1.mp4'], designImages: ['/projects/10-new-project/包星常服.jpg','/projects/10-new-project/唐欣然.jpg','/projects/10-new-project/职业篮球馆脑内幻想_内.jpg','/projects/10-new-project/赵世镜赵大状常服.jpg','/projects/10-new-project/高级律所赵世镜办公室_内.jpg'], detail: '' }
   ],
+  personalWorksTitle: '个人作品',
+  personalWorksSubtitle: '我的独立创作与个人项目',
+  personalWorks: [],
   experienceTitle: '经历',
   experienceSubtitle: '我的工作与学习历程',
   experiences: [
@@ -162,6 +168,13 @@ const savedSnapshot = bundledContentSnapshot as Partial<SiteContent>;
 if (Array.isArray(savedSnapshot.projects) && savedSnapshot.projects.length > 0) {
   defaultContent = savedSnapshot as SiteContent;
 }
+
+defaultContent = {
+  ...defaultContent,
+  personalWorksTitle: defaultContent.personalWorksTitle || '个人作品',
+  personalWorksSubtitle: defaultContent.personalWorksSubtitle || '我的独立创作与个人项目',
+  personalWorks: Array.isArray(defaultContent.personalWorks) ? defaultContent.personalWorks : [],
+};
 
 function projectMediaPath(path: string | undefined, slug: string) {
   if (!path || !path.startsWith("/projects/")) return path || "";

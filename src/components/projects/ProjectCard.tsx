@@ -18,6 +18,7 @@ interface ProjectCardProps {
   images?: string[];
   videos?: string[];
   index: number;
+  basePath?: string;
 }
 
 export default function ProjectCard({
@@ -32,6 +33,7 @@ export default function ProjectCard({
   images = [],
   videos = [],
   index,
+  basePath = "/projects",
 }: ProjectCardProps) {
   const [imgIdx, setImgIdx] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
@@ -57,7 +59,7 @@ export default function ProjectCard({
     <GlowCard delay={index * 0.1}>
       {/* Full-card clickable overlay — the entire card navigates to detail */}
       <Link
-        href={`/projects/${slug || index}`}
+        href={`${basePath}/${slug || index}`}
         className="absolute inset-0 z-10 rounded-xl"
         aria-label={`查看 ${title} 详情`}
       />
