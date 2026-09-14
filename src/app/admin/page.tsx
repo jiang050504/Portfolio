@@ -603,11 +603,10 @@ export default function AdminPage() {
   };
 
   const handleSetCurrentAsDefault = async () => {
-    const writtenToSource = await setDefaultContent(draft);
-    alert(
-      writtenToSource
-        ? "当前整站内容已写入本地源码并设为默认。"
-        : "当前内容已保存为浏览器默认值，但源码写入失败；请在本地开发环境操作。"
+    const succeeded = await setDefaultContent(draft);
+    alert(succeeded
+      ? "当前内容已保存到云端并设为默认，重启后仍会保留。"
+      : "保存失败，请确认登录状态和网络连接。"
     );
   };
 
@@ -663,7 +662,7 @@ export default function AdminPage() {
               className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]"
             >
               <Save size={14} />
-              {saveStatus === "saving" ? "保存中…" : saveStatus === "saved" ? "已保存！" : "保存修改"}
+              {saveStatus === "saving" ? "保存中…" : saveStatus === "saved" ? "已保存，重启后保留！" : "保存修改"}
             </button>
           </div>
         </div>
@@ -1169,7 +1168,7 @@ export default function AdminPage() {
             className="flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 px-10 py-3 text-base font-medium text-white transition-all hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:scale-105"
           >
             <Save size={18} />
-            {saveStatus === "saving" ? "保存中…" : saveStatus === "saved" ? "已保存！去网站看看 →" : "保存所有修改"}
+            {saveStatus === "saving" ? "保存中…" : saveStatus === "saved" ? "已保存，重启后保留！去网站看看 →" : "保存所有修改"}
           </button>
         </div>
         </div>

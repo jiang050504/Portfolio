@@ -204,19 +204,32 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   const saveContent = useCallback(async (newContent: SiteContent) => {
     const normalizedContent = mergeSavedContent(newContent);
+    let response: Response;
     try {
-      const response = await fetch("/api/content", {
+      response = await fetch("/api/content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(normalizedContent),
       });
-      if (!response.ok) return false;
-      setContent(normalizedContent);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedContent));
-      return true;
     } catch {
       return false;
     }
+
+    if (!response.ok) return false;
+
+    setContent(normalizedContent);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedContent));
+      localStorage.setItem(DEFAULT_SNAPSHOT_KEY, JSON.stringify(normalizedContent));
+      localStorage.setItem(PREFERENCES_KEY, JSON.stringify({
+        theme: normalizedContent.theme,
+        wallpaperEnabled: normalizedContent.wallpaperEnabled,
+        particlesOnWallpaper: normalizedContent.particlesOnWallpaper,
+      }));
+    } catch {
+      // The server save succeeded; browser storage is only a local fallback.
+    }
+    return true;
   }, []);
 
   const resetContent = useCallback(() => {
@@ -237,23 +250,22 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   const setDefaultContent = useCallback(async (newContent: SiteContent) => {
     const normalizedContent = mergeSavedContent(newContent);
-    try {
-      localStorage.setItem(DEFAULT_SNAPSHOT_KEY, JSON.stringify(normalizedContent));
-    } catch {
-      // localStorage might be full
-    }
+    const saved = await saveContent(normalizedContent);
+    if (!saved) return false;
 
+    // Local development can additionally update the checked-in fallback
+    // snapshot. Production uses Blob as the durable default source.
     try {
-      const response = await fetch("/api/content-default", {
+      await fetch("/api/content-default", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(normalizedContent),
       });
-      return response.ok;
     } catch {
-      return false;
+      // The durable Blob save above already succeeded.
     }
-  }, []);
+    return true;
+  }, [saveContent]);
 
   if (!mounted) {
     return <>{children}</>;

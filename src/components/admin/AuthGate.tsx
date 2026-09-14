@@ -33,7 +33,7 @@ export default function AuthGate({ children }: AuthGateProps) {
     const response = await fetch("/api/admin/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ password: password.trim() }),
     }).catch(() => null);
 
     if (response?.ok) {
@@ -91,6 +91,10 @@ export default function AuthGate({ children }: AuthGateProps) {
                   onChange={(e) => { setPassword(e.target.value); setError(""); }}
                   placeholder="输入密码"
                   autoFocus
+                  autoComplete="current-password"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3 pr-12 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition-colors focus:border-cyan-400/40"
                 />
                 <button
