@@ -23,8 +23,10 @@ export default function Hero() {
     if (!isDeleting && displayText === currentRole) {
       timeout = setTimeout(() => setIsDeleting(true), 1500);
     } else if (isDeleting && displayText === "") {
-      setIsDeleting(false);
-      setRoleIndex((prev) => (prev + 1) % heroRoles.length);
+      timeout = setTimeout(() => {
+        setIsDeleting(false);
+        setRoleIndex((prev) => (prev + 1) % heroRoles.length);
+      }, 40);
     } else {
       timeout = setTimeout(
         () => {

@@ -9,6 +9,7 @@ import {
   Link2,
   MessageCircle,
   MapPin,
+  Phone,
 } from "lucide-react";
 import { useContent } from "@/context/ContentContext";
 
@@ -18,6 +19,7 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; className?: s
   link2: Link2,
   "message-circle": MessageCircle,
   "map-pin": MapPin,
+  phone: Phone,
 };
 
 export default function ContactPage() {
@@ -42,7 +44,8 @@ export default function ContactPage() {
             return (
               <motion.a
                 key={contact.label}
-                href={contact.href}
+                href={contact.href || undefined}
+                aria-disabled={!contact.href}
                 target={contact.href.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
                 initial={{ opacity: 0, y: 20 }}
@@ -50,7 +53,7 @@ export default function ContactPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className="group flex items-center gap-4 rounded-xl border bg-white/[0.03] p-5 backdrop-blur-sm transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.06)]"
+                className={`group flex items-center gap-4 rounded-xl border bg-white/[0.03] p-5 backdrop-blur-sm transition-all ${contact.href ? "hover:shadow-[0_0_20px_rgba(6,182,212,0.06)]" : "cursor-default"}`}
                 style={{ borderColor: "color-mix(in srgb, var(--accent-primary) 45%, transparent)" }}
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/[0.05] text-[var(--accent-primary)]">

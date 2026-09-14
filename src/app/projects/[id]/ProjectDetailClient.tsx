@@ -102,11 +102,15 @@ export default function ProjectDetailClient({ projectId }: Props) {
     let cancelled = false;
 
     if (!projectCoverImage) {
-      setCoverLayoutReady(true);
-      return;
+      queueMicrotask(() => {
+        if (!cancelled) setCoverLayoutReady(true);
+      });
+      return () => { cancelled = true; };
     }
 
-    setCoverLayoutReady(false);
+    queueMicrotask(() => {
+      if (!cancelled) setCoverLayoutReady(false);
+    });
     const image = new Image();
     image.onload = () => {
       if (cancelled) return;
@@ -188,6 +192,15 @@ export default function ProjectDetailClient({ projectId }: Props) {
       cancelled = true;
     };
   }, [designImages, projectCoverImage, projectImages]);
+
+  useEffect(() => {
+    if (fullscreenIdx === null) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFullscreenIdx(null);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [fullscreenIdx]);
 
   if (!project) {
     return (
@@ -271,8 +284,8 @@ export default function ProjectDetailClient({ projectId }: Props) {
                 <div className="grid gap-6 md:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]">
                   <div>
                     <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">项目封面</h2>
-                    <div onClick={() => setFullscreenIdx(0)}
-                      className="cursor-pointer overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02] transition-transform hover:scale-[1.01]">
+                    <button type="button" aria-label="全屏查看项目封面" onClick={() => setFullscreenIdx(0)}
+                      className="w-full cursor-pointer overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02] transition-transform hover:scale-[1.01]">
                       <img
                         src={asset(coverImage)}
                         alt={`${project.title} 项目封面`}
@@ -281,7 +294,7 @@ export default function ProjectDetailClient({ projectId }: Props) {
                         onContextMenu={(event) => event.preventDefault()}
                       />
                       <MediaWatermark />
-                    </div>
+                    </button>
                   </div>
                   <div className="min-w-0">
                     <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">角色与场景设计</h2>
@@ -319,8 +332,8 @@ export default function ProjectDetailClient({ projectId }: Props) {
               ) : (
                 <>
                   <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">项目封面</h2>
-                  <div onClick={() => setFullscreenIdx(0)}
-                    className="cursor-pointer overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02] transition-transform hover:scale-[1.01]">
+                  <button type="button" aria-label="全屏查看项目封面" onClick={() => setFullscreenIdx(0)}
+                    className="w-full cursor-pointer overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02] transition-transform hover:scale-[1.01]">
                     <img
                       src={asset(coverImage)}
                       alt={`${project.title} 项目封面`}
@@ -329,7 +342,7 @@ export default function ProjectDetailClient({ projectId }: Props) {
                       onContextMenu={(event) => event.preventDefault()}
                     />
                     <MediaWatermark />
-                  </div>
+                  </button>
                 </>
               )}
             </div>
@@ -450,10 +463,10 @@ export default function ProjectDetailClient({ projectId }: Props) {
 
       {/* Fullscreen image viewer */}
       {fullscreenIdx !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm" onClick={() => setFullscreenIdx(null)}>
-          <button onClick={() => setFullscreenIdx(null)} className="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"><X size={20} /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="图片全屏查看器" onClick={() => setFullscreenIdx(null)}>
+          <button type="button" aria-label="关闭全屏查看器" onClick={() => setFullscreenIdx(null)} className="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"><X size={20} /></button>
           {fullscreenIdx > 0 && (
-            <button onClick={(e) => { e.stopPropagation(); setFullscreenIdx(fullscreenIdx - 1); }}
+            <button type="button" aria-label="上一张图片" onClick={(e) => { e.stopPropagation(); setFullscreenIdx(fullscreenIdx - 1); }}
               className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20">
               <ChevronLeft size={24} />
             </button>
@@ -463,7 +476,7 @@ export default function ProjectDetailClient({ projectId }: Props) {
             <MediaWatermark visible />
           </div>
           {fullscreenIdx < galleryImages.length - 1 && (
-            <button onClick={(e) => { e.stopPropagation(); setFullscreenIdx(fullscreenIdx + 1); }}
+            <button type="button" aria-label="下一张图片" onClick={(e) => { e.stopPropagation(); setFullscreenIdx(fullscreenIdx + 1); }}
               className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20">
               <ChevronRight size={24} />
             </button>

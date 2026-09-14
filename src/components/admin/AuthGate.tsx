@@ -3,41 +3,50 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
-import { useContent } from "@/context/ContentContext";
-
-const AUTH_KEY = "portfolio-admin-authed";
 
 interface AuthGateProps {
   children: React.ReactNode;
 }
 
 export default function AuthGate({ children }: AuthGateProps) {
-  const { content } = useContent();
   const [authed, setAuthed] = useState<boolean | null>(null); // null = checking
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
 
-  // Check auth status on mount
   useEffect(() => {
-    const stored = sessionStorage.getItem(AUTH_KEY);
-    setAuthed(stored === "true");
+    let cancelled = false;
+    fetch("/api/admin/session", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data: { authenticated?: boolean }) => {
+        if (!cancelled) setAuthed(Boolean(data.authenticated));
+      })
+      .catch(() => {
+        if (!cancelled) setAuthed(false);
+      });
+    return () => { cancelled = true; };
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === content.adminPassword) {
-      sessionStorage.setItem(AUTH_KEY, "true");
+    setError("");
+    const response = await fetch("/api/admin/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    }).catch(() => null);
+
+    if (response?.ok) {
       setAuthed(true);
-      setError("");
       setPassword("");
     } else {
-      setError("密码错误，请重试");
+      const data = await response?.json().catch(() => null) as { error?: string } | null;
+      setError(data?.error || "登录失败，请重试");
     }
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem(AUTH_KEY);
+  const handleLogout = async () => {
+    await fetch("/api/admin/session", { method: "DELETE" }).catch(() => null);
     setAuthed(false);
   };
 
@@ -87,6 +96,7 @@ export default function AuthGate({ children }: AuthGateProps) {
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
+                  aria-label={showPw ? "隐藏密码" : "显示密码"}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
                 >
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -116,7 +126,7 @@ export default function AuthGate({ children }: AuthGateProps) {
             </form>
 
             <p className="mt-6 text-center text-xs text-zinc-600">
-              默认密码：admin123（可在后台修改）
+              管理凭据由服务器环境变量配置
             </p>
           </div>
         </motion.div>

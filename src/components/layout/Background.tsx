@@ -82,19 +82,15 @@ export default function Background() {
   usePreloadWallpapers();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const showParticles = !wallpaperEnabled || particlesOnWallpaper;
+  const showParticles = particlesOnWallpaper;
 
   useSnowflakes(canvasRef, theme==="frostmoon" && showParticles);
   useGoldDust(canvasRef, theme==="hengyue" && showParticles);
   useEmbers(canvasRef, theme==="hongyue" && showParticles);
 
-  // A deployed site must never fall back to a blank solid-color page. Older
-  // browser data may refer to a removed theme or have wallpaperEnabled off,
-  // so always keep the current theme wallpaper (or 霜月 as a final fallback).
-  const displayWallpaper =
-    wallpaperPath ||
-    DEFAULT_WALLPAPERS[theme] ||
-    DEFAULT_WALLPAPERS.frostmoon;
+  const displayWallpaper = wallpaperEnabled
+    ? wallpaperPath || DEFAULT_WALLPAPERS[theme] || DEFAULT_WALLPAPERS.frostmoon
+    : "";
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0">

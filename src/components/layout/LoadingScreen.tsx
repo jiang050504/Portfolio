@@ -15,20 +15,18 @@ export default function LoadingScreen() {
   const { content } = useContent();
   const [visible, setVisible] = useState(true);
   const [leaving, setLeaving] = useState(false);
-  const wallpaper =
-    content.wallpaperPath ||
-    DEFAULT_WALLPAPERS[content.theme] ||
-    DEFAULT_WALLPAPERS.frostmoon;
+  const wallpaper = content.wallpaperEnabled
+    ? content.wallpaperPath || DEFAULT_WALLPAPERS[content.theme] || DEFAULT_WALLPAPERS.frostmoon
+    : "";
   const firstWallpaper = useRef(wallpaper);
 
   useEffect(() => {
     let cancelled = false;
     let finished = false;
     let exitTimer: ReturnType<typeof setTimeout> | undefined;
-    let safetyTimer: ReturnType<typeof setTimeout> | undefined;
     const startedAt = performance.now();
 
-    const finish = () => {
+    function finish() {
       if (finished) return;
       finished = true;
       if (safetyTimer) clearTimeout(safetyTimer);
@@ -40,9 +38,9 @@ export default function LoadingScreen() {
           if (!cancelled) setVisible(false);
         }, 450);
       }, remaining);
-    };
+    }
 
-    safetyTimer = setTimeout(finish, 8000);
+    const safetyTimer = setTimeout(finish, 8000);
 
     if (!firstWallpaper.current) {
       requestAnimationFrame(finish);

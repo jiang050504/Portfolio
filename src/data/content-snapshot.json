@@ -356,6 +356,36 @@
         "/projects/tianzai/周辰正视图.png",
         "/projects/tianzai/苏软软正视图.png"
       ]
+    },
+    {
+      "title": "《让你攻略男主，你把他发展成同志》",
+      "description": "工科男意外穿越，化身小说里的柔弱女主，还接到系统任务，需攻略男主积攒积分才能返乡并获得修仙机缘。他不走常规路线，凭随性相处和男主成为知己，又发现这个世界被势力暗中操控。二人携手创办科技公司，借游戏唤醒大众认知，对抗外来打压。凭借灵气技术站稳脚跟后，他解锁了世界真相，最终放弃回归原世界，选择留下来并肩前行。",
+      "detail": "工科男意外穿越，化身小说里的柔弱女主，还接到系统任务，需攻略男主积攒积分才能返乡并获得修仙机缘。他不走常规路线，凭随性相处和男主成为知己，又发现这个世界被势力暗中操控。二人携手创办科技公司，借游戏唤醒大众认知，对抗外来打压。凭借灵气技术站稳脚跟后，他解锁了世界真相，最终放弃回归原世界，选择留下来并肩前行。",
+      "tags": [
+        "AIGC，漫剧，穿越，系统"
+      ],
+      "github": "",
+      "demo": "https://novelquickapp.com/s/39Lu9mK4w9k/",
+      "slug": "project-10",
+      "mediaFolder": "project-10",
+      "coverImage": "/projects/project-10/封面-最终-7比10.png",
+      "coverPosition": "center",
+      "images": [
+        "/projects/project-10/9月14日.png",
+        "/projects/project-10/9月14日1.png"
+      ],
+      "videos": [
+        "/projects/project-10/9月14日_41.mp4",
+        "/projects/project-10/9月14日_4.mp4"
+      ],
+      "designImages": [
+        "/projects/project-10/植物基因改良研究所地面大楼_-_外.png",
+        "/projects/project-10/1顾夜寒西装五视图.png",
+        "/projects/project-10/4翡翠城威廉格雷私宅内_凌晨.png",
+        "/projects/project-10/公主房内.png",
+        "/projects/project-10/顾氏集团晚宴大厅_-_内.png",
+        "/projects/project-10/宋若雪五视图.png"
+      ]
     }
   ],
   "experienceTitle": "经历",
@@ -375,8 +405,8 @@
     },
     {
       "period": "2023.09 — 2026.06",
-      "title": "虚拟现实技术应用 · 大专",
-      "organization": "温州职业技术学院",
+      "title": "虚拟现实技术应用 ",
+      "organization": "温州职业技术大学",
       "description": "主修虚拟现实技术应用专业，系统学习游戏开发、AIGC 内容生成、动画制作、3D 建模等核心课程。"
     }
   ],
@@ -387,18 +417,18 @@
       "label": "电话",
       "value": "19918175601",
       "href": "tel:19918175601",
-      "icon": "mail"
+      "icon": "phone"
     },
     {
       "label": "邮箱",
       "value": "jiang050504@outlook.com",
       "href": "mailto:jiang050504@outlook.com",
-      "icon": "globe"
+      "icon": "mail"
     },
     {
       "label": "微信",
       "value": "jyl-5601",
-      "href": "#",
+      "href": "",
       "icon": "message-circle"
     },
     {
@@ -410,8 +440,7 @@
   ],
   "contactStatusTitle": "求职意向",
   "contactStatusText": "意向岗位：AIGC / 网络 / 计算机 | 期望薪资：7-8K | 意向城市：杭州。",
-  "theme": "cyber",
-  "adminPassword": "admin123",
+  "theme": "hongyue",
   "wallpaperEnabled": true,
   "wallpaperPath": "",
   "wallpaperOpacity": 0.85,

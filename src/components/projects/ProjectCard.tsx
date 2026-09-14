@@ -100,10 +100,10 @@ export default function ProjectCard({
         {/* Image nav arrows */}
         {allImages.length > 1 && (
           <>
-            <button onClick={prevImage} className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white/70 opacity-0 transition-opacity group-hover:opacity-100 hover:text-white">
+            <button type="button" aria-label="上一张图片" onClick={prevImage} className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white/70 opacity-0 transition-opacity group-hover:opacity-100 hover:text-white">
               <ChevronLeft size={14} />
             </button>
-            <button onClick={nextImage} className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white/70 opacity-0 transition-opacity group-hover:opacity-100 hover:text-white">
+            <button type="button" aria-label="下一张图片" onClick={nextImage} className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white/70 opacity-0 transition-opacity group-hover:opacity-100 hover:text-white">
               <ChevronRight size={14} />
             </button>
             <div className="absolute bottom-2 left-1/2 z-20 -translate-x-1/2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
@@ -118,6 +118,8 @@ export default function ProjectCard({
         <div className="absolute right-2 top-2 z-20 flex gap-1">
           {allVideos.length > 0 && (
             <button
+              type="button"
+              aria-label={showVideo ? "切换为图片" : "播放项目视频"}
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowVideo(!showVideo); }}
               className="rounded-lg bg-black/60 p-1.5 text-white/80 backdrop-blur-sm transition-colors hover:bg-black/80 hover:text-white"
               title={showVideo ? "查看图片" : "播放视频"}

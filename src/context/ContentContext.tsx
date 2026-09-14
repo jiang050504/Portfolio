@@ -16,6 +16,7 @@ import {
 
 const STORAGE_KEY = "portfolio-content";
 const DEFAULT_SNAPSHOT_KEY = "portfolio-default-content";
+const PREFERENCES_KEY = "portfolio-display-preferences";
 
 function mergeProject(defaultProject: Project, savedProject?: Partial<Project>): Project {
   if (!savedProject) return defaultProject;
@@ -76,6 +77,8 @@ function mergeProject(defaultProject: Project, savedProject?: Partial<Project>):
 }
 
 function mergeSavedContent(saved: Partial<SiteContent>): SiteContent {
+  const safeSaved = { ...saved } as Partial<SiteContent> & { adminPassword?: string };
+  delete safeSaved.adminPassword;
   const savedProjects = Array.isArray(saved.projects) ? saved.projects : [];
   const seenProjectSlugs = new Set<string>();
 
@@ -100,7 +103,7 @@ function mergeSavedContent(saved: Partial<SiteContent>): SiteContent {
 
   return {
     ...defaultContent,
-    ...saved,
+    ...safeSaved,
     theme: theme === "frostmoon" || theme === "hengyue" || theme === "hongyue"
       ? theme
       : defaultContent.theme,
@@ -113,6 +116,7 @@ function mergeSavedContent(saved: Partial<SiteContent>): SiteContent {
 interface ContentContextType {
   content: SiteContent;
   updateContent: (newContent: SiteContent) => void;
+  saveContent: (newContent: SiteContent) => Promise<boolean>;
   resetContent: () => SiteContent;
   setDefaultContent: (newContent: SiteContent) => Promise<boolean>;
 }
@@ -120,6 +124,7 @@ interface ContentContextType {
 const ContentContext = createContext<ContentContextType>({
   content: defaultContent,
   updateContent: () => {},
+  saveContent: async () => false,
   resetContent: () => defaultContent,
   setDefaultContent: async () => false,
 });
@@ -128,53 +133,89 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const [content, setContent] = useState<SiteContent>(defaultContent);
   const [mounted, setMounted] = useState(false);
 
-  // Load from localStorage on mount
   useEffect(() => {
-    // Production deployments must reflect the version bundled with the source.
-    // Do not let content saved by an older deployment on the same domain keep
-    // overriding newly deployed projects and media.
-    if (process.env.NODE_ENV === "production") {
-      setContent(defaultContent);
+    let cancelled = false;
+
+    const hydrate = async () => {
+      let nextContent = defaultContent;
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultContent));
-        localStorage.setItem(DEFAULT_SNAPSHOT_KEY, JSON.stringify(defaultContent));
+        const response = await fetch("/api/content", { cache: "no-store" });
+        if (response.ok) {
+          nextContent = mergeSavedContent(await response.json() as Partial<SiteContent>);
+        } else {
+          throw new Error("Content API unavailable");
+        }
       } catch {
-        // The bundled snapshot remains authoritative if storage is unavailable.
-      }
-      setMounted(true);
-      return;
-    }
-
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved) as Partial<SiteContent>;
-        const currentContent = mergeSavedContent(parsed);
-        setContent(currentContent);
-
-        // The first run after this feature is introduced preserves the user's
-        // entire existing local site as their restore-default baseline.
-        if (!localStorage.getItem(DEFAULT_SNAPSHOT_KEY)) {
-          localStorage.setItem(DEFAULT_SNAPSHOT_KEY, JSON.stringify(currentContent));
-        }
-      } else {
-        const savedDefault = localStorage.getItem(DEFAULT_SNAPSHOT_KEY);
-        if (savedDefault) {
-          setContent(mergeSavedContent(JSON.parse(savedDefault) as Partial<SiteContent>));
+        try {
+          const fallback = localStorage.getItem(STORAGE_KEY);
+          if (fallback) nextContent = mergeSavedContent(JSON.parse(fallback) as Partial<SiteContent>);
+        } catch {
+          nextContent = defaultContent;
         }
       }
-    } catch {
-      // If parse fails, use defaults
-    }
-    setMounted(true);
+
+      try {
+        const preferences = JSON.parse(localStorage.getItem(PREFERENCES_KEY) || "{}") as Partial<SiteContent>;
+        nextContent = {
+          ...nextContent,
+          ...(preferences.theme ? { theme: preferences.theme } : {}),
+          ...(typeof preferences.wallpaperEnabled === "boolean"
+            ? { wallpaperEnabled: preferences.wallpaperEnabled }
+            : {}),
+          ...(typeof preferences.particlesOnWallpaper === "boolean"
+            ? { particlesOnWallpaper: preferences.particlesOnWallpaper }
+            : {}),
+        };
+      } catch {
+        // Invalid display preferences are ignored.
+      }
+
+      if (!cancelled) {
+        setContent(nextContent);
+        setMounted(true);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(nextContent));
+          if (!localStorage.getItem(DEFAULT_SNAPSHOT_KEY)) {
+            localStorage.setItem(DEFAULT_SNAPSHOT_KEY, JSON.stringify(nextContent));
+          }
+        } catch {
+          // Storage is an optional offline fallback.
+        }
+      }
+    };
+
+    void hydrate();
+    return () => { cancelled = true; };
   }, []);
 
   const updateContent = useCallback((newContent: SiteContent) => {
     setContent(newContent);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newContent));
+      localStorage.setItem(PREFERENCES_KEY, JSON.stringify({
+        theme: newContent.theme,
+        wallpaperEnabled: newContent.wallpaperEnabled,
+        particlesOnWallpaper: newContent.particlesOnWallpaper,
+      }));
     } catch {
       // localStorage might be full
+    }
+  }, []);
+
+  const saveContent = useCallback(async (newContent: SiteContent) => {
+    const normalizedContent = mergeSavedContent(newContent);
+    try {
+      const response = await fetch("/api/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(normalizedContent),
+      });
+      if (!response.ok) return false;
+      setContent(normalizedContent);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedContent));
+      return true;
+    } catch {
+      return false;
     }
   }, []);
 
@@ -214,13 +255,12 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Don't render children until mounted to avoid hydration mismatch
   if (!mounted) {
     return <>{children}</>;
   }
 
   return (
-    <ContentContext.Provider value={{ content, updateContent, resetContent, setDefaultContent }}>
+    <ContentContext.Provider value={{ content, updateContent, saveContent, resetContent, setDefaultContent }}>
       {children}
     </ContentContext.Provider>
   );

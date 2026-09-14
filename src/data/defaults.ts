@@ -55,7 +55,6 @@ export interface SiteContent {
   contactStatusTitle: string;
   contactStatusText: string;
   theme: 'frostmoon' | 'hengyue' | 'hongyue';
-  adminPassword: string;
   wallpaperEnabled: boolean;
   wallpaperPath: string;
   wallpaperOpacity: number;
@@ -112,15 +111,14 @@ export let defaultContent: SiteContent = {
   contactTitle: '联系我',
   contactSubtitle: '期待与你的交流与合作',
   contacts: [
-    { label: '电话', value: '19918175601', href: 'tel:19918175601', icon: 'mail' },
-    { label: '邮箱', value: 'jiang050504@outlook.com', href: 'mailto:jiang050504@outlook.com', icon: 'globe' },
-    { label: '微信', value: 'jyl-5601', href: '#', icon: 'message-circle' },
+    { label: '电话', value: '19918175601', href: 'tel:19918175601', icon: 'phone' },
+    { label: '邮箱', value: 'jiang050504@outlook.com', href: 'mailto:jiang050504@outlook.com', icon: 'mail' },
+    { label: '微信', value: 'jyl-5601', href: '', icon: 'message-circle' },
     { label: '作品集', value: '飞书文档', href: 'https://ecnb5b0oiq06.feishu.cn/wiki/TqIwwhLwKiz40lkUo2ncDfBKnhc', icon: 'link2' }
   ],
   contactStatusTitle: '求职意向',
   contactStatusText: '意向岗位：AIGC / 网络 / 计算机 | 期望薪资：7-8K | 意向城市：杭州。',
   theme: 'frostmoon',
-  adminPassword: 'admin123',
   wallpaperEnabled: true,
   wallpaperPath: '',
   wallpaperOpacity: 0.85,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useContent } from "@/context/ContentContext";
@@ -21,7 +21,6 @@ import {
   Check,
   X,
   Layers,
-  Key,
   Bookmark,
 } from "lucide-react";
 
@@ -222,6 +221,9 @@ function FileUpload({
     <div>
       <Field label={label} hint="点击选择或拖拽文件">
         <div
+          role="button"
+          tabIndex={0}
+          aria-label={label}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={(e) => {
@@ -231,6 +233,12 @@ function FileUpload({
             if (f) doUpload(f);
           }}
           onClick={() => fileRef.current?.click()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              fileRef.current?.click();
+            }
+          }}
           className={`cursor-pointer rounded-lg border-2 border-dashed p-4 text-center transition-colors ${
             dragOver
               ? "border-cyan-400/50 bg-cyan-400/5"
@@ -258,6 +266,8 @@ function FileUpload({
               <Check size={14} className="text-green-400" />
               <span className="text-green-400 truncate">{currentPath}</span>
               <button
+                type="button"
+                aria-label={`清除${label}`}
                 onClick={(e) => { e.stopPropagation(); onUploaded(""); }}
                 className="ml-1 rounded p-0.5 text-zinc-500 hover:text-red-400"
               >
@@ -310,6 +320,8 @@ function ProjectEditor({
   return (
     <div className="relative space-y-3 rounded-xl border border-white/[0.14] bg-black/35 p-4 shadow-[0_12px_30px_rgba(0,0,0,.18)] backdrop-blur-md">
       <button
+        type="button"
+        aria-label={`删除项目 ${project.title || projectIndex + 1}`}
         onClick={onDelete}
         className="absolute right-3 top-3 rounded p-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400"
       >
@@ -354,6 +366,8 @@ function ProjectEditor({
                 key={option.value}
                 type="button"
                 title={option.title}
+                aria-label={`封面位置：${option.title}`}
+                aria-pressed={selected}
                 onClick={() => updateProject({ coverPosition: option.value })}
                 className={`h-9 rounded-md border text-sm transition-colors ${
                   selected
@@ -511,6 +525,8 @@ function ExperienceEditor({
   return (
     <div className="relative space-y-3 rounded-xl border border-white/[0.14] bg-black/35 p-4 shadow-[0_12px_30px_rgba(0,0,0,.18)] backdrop-blur-md">
       <button
+        type="button"
+        aria-label={`删除经历 ${exp.title}`}
         onClick={onDelete}
         className="absolute right-3 top-3 rounded p-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400"
       >
@@ -549,25 +565,34 @@ function ExperienceEditor({
 // ======================= Main Page =======================
 
 export default function AdminPage() {
-  const { content, updateContent, resetContent, setDefaultContent } = useContent();
+  const { content, saveContent, resetContent, setDefaultContent } = useContent();
   const [activeTab, setActiveTab] = useState<TabKey>("hero");
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number | null>(null);
   const [draft, setDraft] = useState<SiteContent>(() =>
     JSON.parse(JSON.stringify(content))
   );
-  const [saved, setSaved] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const router = useRouter();
 
-  const handleSave = () => {
+  useEffect(() => {
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) setDraft(JSON.parse(JSON.stringify(content)));
+    });
+    return () => { cancelled = true; };
+  }, [content]);
+
+  const handleSave = async () => {
     const slugs = draft.projects.map((project) => project.slug).filter(Boolean) as string[];
     if (new Set(slugs).size !== slugs.length) {
       alert("每个项目的网页后缀必须唯一，请修改重复的后缀后再保存。");
       return;
     }
-    updateContent(draft);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setSaveStatus("saving");
+    const succeeded = await saveContent(draft);
+    setSaveStatus(succeeded ? "saved" : "error");
+    if (!succeeded) alert("保存失败，请确认已登录且生产环境已配置 Blob 存储。");
+    setTimeout(() => setSaveStatus("idle"), 2500);
   };
 
   const handleReset = () => {
@@ -613,7 +638,6 @@ export default function AdminPage() {
               className="flex items-center gap-2 rounded-lg border border-white/[0.16] bg-black/30 px-4 py-2.5 text-base text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-white/[0.06] hover:text-white"
             >
               <ArrowLeft size={14} />
-              <ArrowLeft size={18} />
               回到网站
             </button>
             <h1 className="text-2xl font-bold text-zinc-100">内容编辑后台</h1>
@@ -635,10 +659,11 @@ export default function AdminPage() {
             </button>
             <button
               onClick={handleSave}
+              disabled={saveStatus === "saving"}
               className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]"
             >
               <Save size={14} />
-              {saved ? "已保存！" : "保存修改"}
+              {saveStatus === "saving" ? "保存中…" : saveStatus === "saved" ? "已保存！" : "保存修改"}
             </button>
           </div>
         </div>
@@ -791,6 +816,8 @@ export default function AdminPage() {
                         }} />
                       </Field>
                       <button
+                        type="button"
+                        aria-label={`删除技能分类 ${cat.title}`}
                         onClick={() => updateDraft({ skills: draft.skills.filter((_, i) => i !== catIdx) })}
                         className="mt-5 rounded p-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400"
                       >
@@ -831,8 +858,9 @@ export default function AdminPage() {
                       <button
                         onClick={() => {
                           const newIndex = draft.projects.length;
+                          const mediaFolder = createProjectMediaFolder("", newIndex);
                           updateDraft({
-                            projects: [...draft.projects, { title: "新项目", description: "", detail: "", tags: [], github: "", demo: "", slug: `project-${newIndex + 1}`, mediaFolder: `project-${newIndex + 1}`, coverImage: "", coverPosition: "center", images: [], videos: [], designImages: [] }],
+                            projects: [...draft.projects, { title: "新项目", description: "", detail: "", tags: [], github: "", demo: "", slug: mediaFolder, mediaFolder, coverImage: "", coverPosition: "center", images: [], videos: [], designImages: [] }],
                           });
                           setSelectedProjectIndex(newIndex);
                         }}
@@ -987,12 +1015,13 @@ export default function AdminPage() {
                           className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2 py-2 text-xs text-zinc-300 outline-none"
                         >
                           <option value="mail">邮件</option>
+                          <option value="phone">电话</option>
                           <option value="globe">网站</option>
                           <option value="link2">链接</option>
                           <option value="message-circle">聊天</option>
                           <option value="map-pin">位置</option>
                         </select>
-                        <button onClick={() => updateDraft({ contacts: draft.contacts.filter((_, idx) => idx !== i) })} className="rounded p-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400">
+                        <button type="button" aria-label={`删除联系方式 ${c.label}`} onClick={() => updateDraft({ contacts: draft.contacts.filter((_, idx) => idx !== i) })} className="rounded p-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400">
                           <Trash2 size={14} />
                         </button>
                       </div>
@@ -1061,6 +1090,9 @@ export default function AdminPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-zinc-400">启用壁纸</span>
                     <button
+                      type="button"
+                      aria-label="启用壁纸"
+                      aria-pressed={draft.wallpaperEnabled}
                       onClick={() => updateDraft({ wallpaperEnabled: !draft.wallpaperEnabled })}
                       className={`relative h-6 w-11 rounded-full transition-colors ${
                         draft.wallpaperEnabled ? "bg-cyan-500" : "bg-white/[0.08]"
@@ -1093,6 +1125,9 @@ export default function AdminPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-zinc-400">壁纸上显示粒子</span>
                     <button
+                      type="button"
+                      aria-label="显示背景粒子"
+                      aria-pressed={draft.particlesOnWallpaper}
                       onClick={() => updateDraft({ particlesOnWallpaper: !draft.particlesOnWallpaper })}
                       className={`relative h-6 w-11 rounded-full transition-colors ${
                         draft.particlesOnWallpaper ? "bg-cyan-500" : "bg-white/[0.08]"
@@ -1118,39 +1153,9 @@ export default function AdminPage() {
                   )}
                 </div>
 
-                {/* Password change */}
-                <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 space-y-4">
-                  <h3 className="text-sm font-medium text-zinc-300 flex items-center gap-2">
-                    <Key size={16} className="text-amber-400" />
-                    修改管理密码
-                  </h3>
-                  <div className="flex gap-3">
-                    <input
-                      type="password"
-                      placeholder="输入新密码"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 outline-none focus:border-amber-400/40"
-                    />
-                    <button
-                      onClick={() => {
-                        if (newPassword.length >= 3) {
-                          updateDraft({ adminPassword: newPassword });
-                          setNewPassword("");
-                          alert("密码已更新！请保存后生效。");
-                        } else {
-                          alert("密码至少 3 个字符");
-                        }
-                      }}
-                      className="rounded-lg bg-amber-500/20 px-4 py-2 text-sm text-amber-400 transition-colors hover:bg-amber-500/30"
-                    >
-                      更新密码
-                    </button>
-                  </div>
-                  <p className="text-xs text-zinc-600">
-                    当前密码：{draft.adminPassword.replace(/./g, "•")}（点击更新后生效）
+                  <p className="rounded-lg border border-amber-400/15 bg-amber-400/5 p-3 text-xs text-zinc-400">
+                    管理密码由服务器环境变量配置，不再写入网页内容。
                   </p>
-                </div>
               </>
             )}
           </motion.div>
@@ -1160,10 +1165,11 @@ export default function AdminPage() {
         <div className="mt-10 flex justify-center">
           <button
             onClick={handleSave}
+            disabled={saveStatus === "saving"}
             className="flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 px-10 py-3 text-base font-medium text-white transition-all hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:scale-105"
           >
             <Save size={18} />
-            {saved ? "已保存！去网站看看 →" : "保存所有修改"}
+            {saveStatus === "saving" ? "保存中…" : saveStatus === "saved" ? "已保存！去网站看看 →" : "保存所有修改"}
           </button>
         </div>
         </div>
