@@ -13,3 +13,6 @@ yarn-error.log*
 next-env.d.ts
 tmp/
 _resume_text.txt
+
+.env*
+!.env.example
