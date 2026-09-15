@@ -17,6 +17,13 @@ interface Props {
   collection?: "projects" | "personalWorks";
 }
 
+function videoMimeType(path: string) {
+  const cleanPath = path.toLowerCase().split("?")[0];
+  if (cleanPath.endsWith(".webm")) return "video/webm";
+  if (cleanPath.endsWith(".mov")) return "video/quicktime";
+  return "video/mp4";
+}
+
 function GalleryImage({
   src,
   alt,
@@ -384,13 +391,15 @@ export default function ProjectDetailClient({ projectId, collection = "projects"
                     ) : (
                       <>
                         <video
-                          src={asset(vid)}
                           controls
-                          controlsList="nodownload noplaybackrate noremoteplayback"
-                          disablePictureInPicture
+                          playsInline
+                          preload="metadata"
                           onContextMenu={(e) => e.preventDefault()}
                           className="w-full max-h-[60vh] object-contain bg-black rounded-lg"
-                        />
+                        >
+                          <source src={asset(vid)} type={videoMimeType(vid)} />
+                          你的浏览器暂不支持该视频格式
+                        </video>
                       </>
                     )}
                   </div>
